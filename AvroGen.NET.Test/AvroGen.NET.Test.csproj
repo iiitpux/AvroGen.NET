@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratedCodePath>$(MSBuildProjectDirectory)\Generated</GeneratedCodePath>
+    <AssemblyName>AvroGen.NET.Test</AssemblyName>
+    <RootNamespace>AvroGen.NET.Test</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AvroGen.NET\AvroGen.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0" />
+    <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvroSchema Include="Schemas\test-schema.avsc">
+      <Subject>test-schema-value</Subject>
+      <Version>3</Version>
+      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+      <OutputPath>$(GeneratedCodePath)</OutputPath>
+    </AvroSchema>
+  </ItemGroup>
+
+  <Import Project="..\AvroGen.NET\Build\AvroGen.NET.targets" />
+
+  <Target Name="EnsureGeneratedFolderExists" BeforeTargets="BeforeBuild">
+    <Message Text="Creating Generated folder..." Importance="high" />
+    <Message Text="GeneratedCodePath: $(GeneratedCodePath)" Importance="high" />
+    <MakeDir Directories="$(GeneratedCodePath)" />
+  </Target>
+
+</Project>
