@@ -16,7 +16,7 @@ namespace com.example
     using global::Avro.Specific;
     
     
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("MSBuild", "1.11.3")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("MSBuild", "1.12.0+8c27801dc8d42ccc00997f25c0b8f45f8d4a233e")]
     public partial class TestRecord : global::Avro.Specific.ISpecificRecord
     {
         
@@ -143,7 +143,7 @@ namespace com.example
         }
     }
     
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("MSBuild", "1.11.3")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("MSBuild", "1.12.0+8c27801dc8d42ccc00997f25c0b8f45f8d4a233e")]
     public enum TestEnum
     {
         

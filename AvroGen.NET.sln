@@ -4,7 +4,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET", "AvroGen.NET\AvroGen.NET.csproj", "{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Test", "AvroGen.NET.Test\AvroGen.NET.Test.csproj", "{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Test", "tests\AvroGen.NET.Test.csproj", "{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Tool", "AvroGen.NET.Tool\AvroGen.NET.Tool.csproj", "{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}"
 EndProject
