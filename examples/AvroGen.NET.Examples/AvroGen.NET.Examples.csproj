@@ -5,12 +5,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.1</Version>
+    <Version>0.3.3</Version>
+    <GenerateAvroClasses>false</GenerateAvroClasses>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AvroGen.NET\AvroGen.NET.csproj" />
-    <AvroGen Include=".">
+    <AvroGen Include="." Condition="'$(GenerateAvroClasses)' == 'true'">
       <Subject>test-schema-value</Subject>
       <Version>1</Version>
       <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>

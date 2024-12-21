@@ -3,11 +3,21 @@ using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace AvroGen.NET
 {
+    /// <summary>
+    /// MSBuild task for generating C# classes from Avro schemas stored in Schema Registry.
+    /// </summary>
     public class GenerateAvroClassesTask : MSBuildTask
     {
+        /// <summary>
+        /// Configuration for Avro schema generation.
+        /// </summary>
         [Required]
         public ITaskItem[] AvroGen { get; set; } = Array.Empty<ITaskItem>();
 
+        /// <summary>
+        /// Executes the task to generate C# classes from Avro schemas.
+        /// </summary>
+        /// <returns>True if task execution was successful; otherwise, false.</returns>
         public override bool Execute()
         {
             try
