@@ -27,36 +27,18 @@ dotnet tool install -g AvroGen.NET.Tool
 Добавьте следующее в ваш проектный файл:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="0.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvroSchema>
-      <Subject>test-schema-value</Subject>
-      <Version>1</Version>
-      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
-      <OutputPath>$(GeneratedCodePath)</OutputPath>
-    </AvroSchema>
-  </ItemGroup>
-
-  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
-    <GenerateAvroClassesTask
-      AvroSchemas="@(AvroSchema)"
-      SchemaRegistryUrl="$(SchemaRegistryUrl)"
-      OutputDirectory="$(GeneratedCodePath)" />
-  </Target>
-</Project>
+<ItemGroup>
+  <AvroGen Include=".">
+    <Subject>your-schema-subject</Subject>
+    <Version>1</Version>
+    <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+    <OutputPath>$(MSBuildProjectDirectory)/Generated</OutputPath>
+  </AvroGen>
+</ItemGroup>
 ```
 
-Теперь просто соберите ваш проект, и классы будут сгенерированы автоматически:
+Классы будут сгенерированы во время сборки. Вы также можете сгенерировать их вручную, выполнив:
+
 ```bash
 dotnet build
 ```
@@ -131,7 +113,7 @@ cd infrastructure
 
 ## Параметры конфигурации
 
-- `Subject`: Имя субъекта в Schema Registry
+- `Subject`: Имя схемы в Schema Registry
 - `Version`: Версия схемы
 - `SchemaRegistryUrl`: URL Schema Registry
 - `OutputPath`: Путь для сгенерированных файлов

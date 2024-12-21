@@ -5,26 +5,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
-    <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AvroGen.NET\AvroGen.NET.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvroSchema Include="test-schema-value">
+    <AvroGen Include=".">
       <Subject>test-schema-value</Subject>
       <Version>1</Version>
-    </AvroSchema>
+      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+      <OutputPath>$(MSBuildProjectDirectory)/Generated</OutputPath>
+    </AvroGen>
   </ItemGroup>
 
-  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
-    <GenerateAvroClassesTask
-      AvroSchemas="@(AvroSchema)"
-      SchemaRegistryUrl="$(SchemaRegistryUrl)"
-      OutputDirectory="$(GeneratedCodePath)" />
-  </Target>
+  <Import Project="..\..\src\AvroGen.NET\build\AvroGen.NET.targets" />
 
 </Project>

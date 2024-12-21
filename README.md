@@ -1,98 +1,44 @@
 # AvroGen.NET
 
-[Русская версия](README.ru.md)
-
-AvroGen.NET is a library for automatic generation of C# classes from Avro schemas stored in Confluent Schema Registry. It seamlessly integrates with MSBuild to automatically generate classes during build, and also provides a command-line tool and programmatic API for more specific use cases.
+MSBuild-based tool for generating C# classes from Avro schemas stored in Schema Registry.
 
 ## Installation
 
-### Library
+Install the NuGet package:
 
 ```bash
 dotnet add package AvroGen.NET
 ```
 
-### Command Line Tool
-
-```bash
-dotnet tool install -g AvroGen.NET.Tool
-```
-
 ## Usage
-
-### MSBuild Integration (Recommended)
-
-The recommended way to use AvroGen.NET is through MSBuild integration. This approach automatically generates classes during build time and ensures they are always in sync with your schemas.
 
 Add the following to your project file:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
+<ItemGroup>
+  <AvroGen Include=".">
+    <Subject>your-schema-subject</Subject>
+    <Version>1</Version>
     <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="0.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvroSchema Include="test-schema-value">
-      <Subject>test-schema-value</Subject>
-      <Version>1</Version>
-      <OutputPath>$(GeneratedCodePath)</OutputPath>
-    </AvroSchema>
-  </ItemGroup>
-
-  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
-    <GenerateAvroClassesTask
-      AvroSchemas="@(AvroSchema)"
-      SchemaRegistryUrl="$(SchemaRegistryUrl)"
-      OutputDirectory="$(GeneratedCodePath)" />
-  </Target>
-</Project>
+    <OutputPath>$(MSBuildProjectDirectory)/Generated</OutputPath>
+  </AvroGen>
+</ItemGroup>
 ```
 
-Now just build your project and the classes will be generated automatically:
+The classes will be generated during build. You can also generate them manually by running:
+
 ```bash
 dotnet build
 ```
 
-### Command Line Tool
+## Configuration
 
-For one-off generation or when you need more control, you can use the command-line tool:
+The `AvroGen` item supports the following metadata:
 
-```bash
-avrogen-net generate --schema-registry-url http://localhost:8081 --subject test-schema-value --version 1 --output ./Generated
-```
-
-### Programmatic API
-
-For advanced scenarios or when you need to integrate class generation into your application:
-
-```csharp
-using AvroGen.NET;
-
-var config = new SchemaGeneratorConfig
-{
-    SchemaRegistryUrl = "http://localhost:8081",
-    OutputDirectory = "./Generated"
-};
-
-var generator = new SchemaGenerator(config);
-await generator.GenerateClassFromSchema("test-schema-value", 1);
-```
-
-## Features
-
-- **MSBuild Integration**: Automatically generate classes during build
-- **Command Line Tool**: Quick class generation for development and testing
-- **Programmatic API**: Full control over the generation process
-- **Schema Registry Integration**: Direct integration with Confluent Schema Registry
-- **Clean Code Generation**: Generated classes follow C# best practices
+- `Subject` - Schema Registry subject name
+- `Version` - Schema version (optional, defaults to latest)
+- `SchemaRegistryUrl` - URL of the Schema Registry
+- `OutputPath` - Directory where the generated classes will be placed
 
 ## License
 
