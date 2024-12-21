@@ -1,24 +1,26 @@
 # AvroGen.NET
 
-AvroGen.NET - это библиотека для автоматической генерации C# классов из Avro схем, хранящихся в Confluent Schema Registry. Она предоставляет как программный API для интеграции в ваши приложения, так и консольный инструмент для быстрой генерации классов.
+[Русская версия](README.ru.md)
 
-## Установка
+AvroGen.NET is a library for automatic generation of C# classes from Avro schemas stored in Confluent Schema Registry. It provides both a programmatic API for integration into your applications and a command-line tool for quick class generation.
 
-### NuGet пакет
+## Installation
+
+### NuGet Package
 
 ```bash
 dotnet add package AvroGen.NET
 ```
 
-### Консольный инструмент
+### Command Line Tool
 
 ```bash
 dotnet tool install --global --add-source ./nupkg AvroGen.NET.Tool
 ```
 
-## Использование
+## Usage
 
-### Программный способ
+### Programmatic Way
 
 ```csharp
 using AvroGen.NET;
@@ -33,19 +35,19 @@ var generator = new SchemaGenerator(config);
 await generator.GenerateClassFromSchema("user-value", 1);
 ```
 
-### Консольный способ
+### Command Line Way
 
-После установки глобального инструмента, вы можете использовать его для генерации классов:
+After installing the global tool, you can use it to generate classes:
 
 ```bash
 avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./generated
 ```
 
-Параметры:
-- `--schema-registry-url` - URL Schema Registry
-- `--subject` - имя субъекта (схемы) в Schema Registry
-- `--schema-version` - версия схемы
-- `--output` - путь для сохранения сгенерированного класса
+Parameters:
+- `--schema-registry-url` - Schema Registry URL
+- `--subject` - Schema subject name in Schema Registry
+- `--schema-version` - Schema version
+- `--output` - Path for saving generated class
 
 ## Features
 
@@ -124,41 +126,66 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) for schema management
 - The .NET community for inspiration and support
 
-## Локальная разработка
+## Local Development
 
-### Требования
+### Requirements
 
 - .NET 8.0 SDK
-- Docker и Docker Compose (для локального Schema Registry)
+- Docker and Docker Compose (for local Schema Registry)
 
-### Настройка окружения
+### Environment Setup
 
-1. Запустите локальный Schema Registry:
+1. Start local Schema Registry:
 ```bash
 cd infrastructure
 ./start.ps1
 ```
 
-2. Остановка локального окружения:
+2. Stop local environment:
 ```bash
 cd infrastructure
 ./stop.ps1
 ```
 
-## Структура проекта
+## Project Structure
 
-- `src/` - исходный код
-  - `AvroGen.NET/` - основная библиотека
-  - `AvroGen.NET.Tool/` - консольный инструмент
-- `tests/` - тесты
-  - `AvroGen.NET.UnitTests/` - модульные тесты
-  - `AvroGen.NET.IntegrationTests/` - интеграционные тесты
-- `examples/` - примеры использования
-- `infrastructure/` - файлы для локальной разработки
-- `docs/` - документация
-- `build/` - артефакты сборки
-- `schemas/` - примеры Avro схем
+- `src/` - source code
+  - `AvroGen.NET/` - main library
+  - `AvroGen.NET.Tool/` - command line tool
+- `tests/` - tests
+  - `AvroGen.NET.UnitTests/` - unit tests
+  - `AvroGen.NET.IntegrationTests/` - integration tests
+- `examples/` - usage examples
+- `infrastructure/` - files for local development
+- `docs/` - documentation
+- `build/` - build artifacts
+- `schemas/` - Avro schema examples
 
-## Лицензия
+## Configuration Options
+
+- `Subject`: Schema Registry subject name
+- `Version`: Schema version
+- `SchemaRegistryUrl`: Schema Registry URL
+- `OutputPath`: Generated files path
+- `Namespace`: Namespace for generated classes
+- `GenerateAsync`: Generate async serialization methods
+- `GenerateEquality`: Generate equality comparison methods
+- `GenerateJsonMethods`: Generate JSON serialization methods
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## Acknowledgments
+
+- [Apache Avro](https://avro.apache.org/) for the Avro serialization system
+- [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) for schema management
+- The .NET community for inspiration and support
+
+## License
 
 MIT
