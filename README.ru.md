@@ -2,11 +2,11 @@
 
 [English version](README.md)
 
-AvroGen.NET - это библиотека для автоматической генерации C# классов из Avro схем, хранящихся в Confluent Schema Registry. Она предоставляет как программный API для интеграции в ваши приложения, так и консольный инструмент для быстрой генерации классов.
+AvroGen.NET - это библиотека для автоматической генерации C# классов из Avro схем, хранящихся в Confluent Schema Registry. Она тесно интегрируется с MSBuild для автоматической генерации классов во время сборки, а также предоставляет консольный инструмент и программный API для более специфических случаев использования.
 
 ## Установка
 
-### NuGet пакет
+### Библиотека
 
 ```bash
 dotnet add package AvroGen.NET
@@ -15,43 +15,16 @@ dotnet add package AvroGen.NET
 ### Консольный инструмент
 
 ```bash
-dotnet tool install --global --add-source ./nupkg AvroGen.NET.Tool
+dotnet tool install -g AvroGen.NET.Tool
 ```
 
 ## Использование
 
-### Программный способ
+### MSBuild интеграция (Рекомендуется)
 
-```csharp
-using AvroGen.NET;
+Рекомендуемый способ использования AvroGen.NET - через интеграцию с MSBuild. Этот подход автоматически генерирует классы во время сборки и гарантирует, что они всегда синхронизированы с вашими схемами.
 
-var config = new SchemaGeneratorConfig
-{
-    SchemaRegistryUrl = "http://localhost:8081",
-    OutputDirectory = "./generated"
-};
-
-var generator = new SchemaGenerator(config);
-await generator.GenerateClassFromSchema("user-value", 1);
-```
-
-### Консольный способ
-
-После установки глобального инструмента, вы можете использовать его для генерации классов:
-
-```bash
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./generated
-```
-
-Параметры:
-- `--schema-registry-url` - URL Schema Registry
-- `--subject` - имя субъекта (схемы) в Schema Registry
-- `--schema-version` - версия схемы
-- `--output` - путь для сохранения сгенерированного класса
-
-## Пример
-
-Вот полный пример использования AvroGen.NET в вашем проекте:
+Добавьте следующее в ваш проектный файл:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -62,7 +35,7 @@ avrogennet --schema-registry-url http://localhost:8081 --subject user-value --sc
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="0.1.0" />
+    <PackageReference Include="AvroGen.NET" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,6 +48,44 @@ avrogennet --schema-registry-url http://localhost:8081 --subject user-value --sc
   </ItemGroup>
 </Project>
 ```
+
+Теперь просто соберите ваш проект, и классы будут сгенерированы автоматически:
+```bash
+dotnet build
+```
+
+### Консольный инструмент
+
+Для разовой генерации или когда вам нужен больший контроль, вы можете использовать консольный инструмент:
+
+```bash
+avrogen-net generate --schema-registry-url http://localhost:8081 --subject test-schema-value --version 1 --output ./Generated
+```
+
+### Программный API
+
+Для продвинутых сценариев или когда вам нужно интегрировать генерацию классов в ваше приложение:
+
+```csharp
+using AvroGen.NET;
+
+var config = new SchemaGeneratorConfig
+{
+    SchemaRegistryUrl = "http://localhost:8081",
+    OutputDirectory = "./Generated"
+};
+
+var generator = new SchemaGenerator(config);
+await generator.GenerateClassFromSchema("test-schema-value", 1);
+```
+
+## Возможности
+
+- **MSBuild интеграция**: Автоматическая генерация классов во время сборки
+- **Консольный инструмент**: Быстрая генерация классов для разработки и тестирования
+- **Программный API**: Полный контроль над процессом генерации
+- **Интеграция с Schema Registry**: Прямая интеграция с Confluent Schema Registry
+- **Чистая генерация кода**: Сгенерированные классы следуют лучшим практикам C#
 
 ## Локальная разработка
 

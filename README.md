@@ -2,11 +2,11 @@
 
 [Русская версия](README.ru.md)
 
-AvroGen.NET is a library for automatic generation of C# classes from Avro schemas stored in Confluent Schema Registry. It provides both a programmatic API for integration into your applications and a command-line tool for quick class generation.
+AvroGen.NET is a library for automatic generation of C# classes from Avro schemas stored in Confluent Schema Registry. It seamlessly integrates with MSBuild to automatically generate classes during build, and also provides a command-line tool and programmatic API for more specific use cases.
 
 ## Installation
 
-### NuGet Package
+### Library
 
 ```bash
 dotnet add package AvroGen.NET
@@ -15,59 +15,16 @@ dotnet add package AvroGen.NET
 ### Command Line Tool
 
 ```bash
-dotnet tool install --global --add-source ./nupkg AvroGen.NET.Tool
+dotnet tool install -g AvroGen.NET.Tool
 ```
 
 ## Usage
 
-### Programmatic Way
+### MSBuild Integration (Recommended)
 
-```csharp
-using AvroGen.NET;
+The recommended way to use AvroGen.NET is through MSBuild integration. This approach automatically generates classes during build time and ensures they are always in sync with your schemas.
 
-var config = new SchemaGeneratorConfig
-{
-    SchemaRegistryUrl = "http://localhost:8081",
-    OutputDirectory = "./generated"
-};
-
-var generator = new SchemaGenerator(config);
-await generator.GenerateClassFromSchema("user-value", 1);
-```
-
-### Command Line Way
-
-After installing the global tool, you can use it to generate classes:
-
-```bash
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./generated
-```
-
-Parameters:
-- `--schema-registry-url` - Schema Registry URL
-- `--subject` - Schema subject name in Schema Registry
-- `--schema-version` - Schema version
-- `--output` - Path for saving generated class
-
-## Features
-
-- Automatic C# class generation from Avro schemas
-- Integration with Schema Registry
-- MSBuild task for seamless build process integration
-- Support for schema versioning
-- Clean and maintainable generated code
-- NuGet package for easy distribution
-
-## Configuration Options
-
-- `Subject`: The Schema Registry subject name
-- `Version`: The schema version to use (optional, defaults to latest)
-- `SchemaRegistryUrl`: URL of your Schema Registry instance
-- `OutputPath`: Directory where generated classes will be placed
-
-## Example
-
-Here's a complete example of how to use AvroGen.NET in your project:
+Add the following to your project file:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -78,7 +35,7 @@ Here's a complete example of how to use AvroGen.NET in your project:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="0.1.0" />
+    <PackageReference Include="AvroGen.NET" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -92,97 +49,43 @@ Here's a complete example of how to use AvroGen.NET in your project:
 </Project>
 ```
 
-## Requirements
-
-- .NET 8.0 or later
-- Access to a Schema Registry instance
-- MSBuild 17.0 or later
-
-## Building from Source
-
-1. Clone the repository:
-```bash
-git clone https://github.com/iiitpux/AvroGen.NET.git
-```
-
-2. Build the solution:
+Now just build your project and the classes will be generated automatically:
 ```bash
 dotnet build
 ```
 
-## Contributing
+### Command Line Tool
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+For one-off generation or when you need more control, you can use the command-line tool:
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Apache Avro](https://avro.apache.org/) for the Avro serialization system
-- [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) for schema management
-- The .NET community for inspiration and support
-
-## Local Development
-
-### Requirements
-
-- .NET 8.0 SDK
-- Docker and Docker Compose (for local Schema Registry)
-
-### Environment Setup
-
-1. Start local Schema Registry:
 ```bash
-cd infrastructure
-./start.ps1
+avrogen-net generate --schema-registry-url http://localhost:8081 --subject test-schema-value --version 1 --output ./Generated
 ```
 
-2. Stop local environment:
-```bash
-cd infrastructure
-./stop.ps1
+### Programmatic API
+
+For advanced scenarios or when you need to integrate class generation into your application:
+
+```csharp
+using AvroGen.NET;
+
+var config = new SchemaGeneratorConfig
+{
+    SchemaRegistryUrl = "http://localhost:8081",
+    OutputDirectory = "./Generated"
+};
+
+var generator = new SchemaGenerator(config);
+await generator.GenerateClassFromSchema("test-schema-value", 1);
 ```
 
-## Project Structure
+## Features
 
-- `src/` - source code
-  - `AvroGen.NET/` - main library
-  - `AvroGen.NET.Tool/` - command line tool
-- `tests/` - tests
-  - `AvroGen.NET.UnitTests/` - unit tests
-  - `AvroGen.NET.IntegrationTests/` - integration tests
-- `examples/` - usage examples
-- `infrastructure/` - files for local development
-- `docs/` - documentation
-- `build/` - build artifacts
-- `schemas/` - Avro schema examples
-
-## Configuration Options
-
-- `Subject`: Schema Registry subject name
-- `Version`: Schema version
-- `SchemaRegistryUrl`: Schema Registry URL
-- `OutputPath`: Generated files path
-- `Namespace`: Namespace for generated classes
-- `GenerateAsync`: Generate async serialization methods
-- `GenerateEquality`: Generate equality comparison methods
-- `GenerateJsonMethods`: Generate JSON serialization methods
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## Acknowledgments
-
-- [Apache Avro](https://avro.apache.org/) for the Avro serialization system
-- [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) for schema management
-- The .NET community for inspiration and support
+- **MSBuild Integration**: Automatically generate classes during build
+- **Command Line Tool**: Quick class generation for development and testing
+- **Programmatic API**: Full control over the generation process
+- **Schema Registry Integration**: Direct integration with Confluent Schema Registry
+- **Clean Code Generation**: Generated classes follow C# best practices
 
 ## License
 
