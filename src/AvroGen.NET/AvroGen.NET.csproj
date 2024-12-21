@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.4</Version>
+    <Version>0.3.5</Version>
     <Authors>iiitpux</Authors>
     <Company>iiitpux</Company>
     <Description>Library for automatic generation of C# classes from Avro schemas stored in Schema Registry</Description>
@@ -14,7 +14,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>true</IncludeBuildOutput>
-    <BuildOutputTargetFolder>build</BuildOutputTargetFolder>
+    <BuildOutputTargetFolder>lib</BuildOutputTargetFolder>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,14 +28,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\**" Pack="true" PackagePath="build" />
+    <None Include="Build\AvroGen.NET.props" Pack="true" PackagePath="build" />
+    <None Include="Build\AvroGen.NET.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
 
-  <Target Name="CopyBuildFiles" AfterTargets="Build">
+  <Target Name="CopyBuildFiles" BeforeTargets="BeforeBuild">
     <ItemGroup>
-      <BuildFiles Include="$(MSBuildThisFileDirectory)build\**\*.*" />
+      <BuildFiles Include="$(OutputPath)*.dll" />
     </ItemGroup>
-    <Copy SourceFiles="@(BuildFiles)" DestinationFolder="$(OutputPath)build\%(RecursiveDir)" />
+    <Copy SourceFiles="@(BuildFiles)" 
+          DestinationFolder="$(ProjectDir)Build"
+          SkipUnchangedFiles="true"
+          OverwriteReadOnlyFiles="true"
+          Retries="0"
+          ContinueOnError="true">
+      <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles" />
+    </Copy>
+  </Target>
+
+  <Target Name="CleanBuildFiles" BeforeTargets="Clean">
+    <Delete Files="$(ProjectDir)Build\*.dll" ContinueOnError="true" />
   </Target>
 
 </Project>
