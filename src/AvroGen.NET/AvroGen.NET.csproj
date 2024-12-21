@@ -4,13 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.6</Version>
+    <Version>0.3.7</Version>
     <Authors>iiitpux</Authors>
     <Company>iiitpux</Company>
-    <Description>Library for automatic generation of C# classes from Avro schemas stored in Schema Registry</Description>
+    <Description>A .NET library for generating C# classes from Apache Avro schemas</Description>
     <PackageProjectUrl>https://github.com/iiitpux/AvroGen.NET</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/iiitpux/AvroGen.NET.git</RepositoryUrl>
-    <PackageTags>avro;schema-registry;kafka;confluent;code-generation</PackageTags>
+    <RepositoryUrl>https://github.com/iiitpux/AvroGen.NET</RepositoryUrl>
+    <PackageTags>avro;codegen;apache-avro</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>true</IncludeBuildOutput>
