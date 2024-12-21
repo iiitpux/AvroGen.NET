@@ -5,19 +5,33 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>1.0.0</Version>
-    <Authors>AvroGen.NET Team</Authors>
-    <Company>AvroGen.NET</Company>
-    <Description>MSBuild task for generating C# classes from Avro schemas in Schema Registry</Description>
+    <Authors>iiitpux</Authors>
+    <Company>iiitpux</Company>
+    <Description>Library for automatic generation of C# classes from Avro schemas stored in Schema Registry</Description>
     <BuildOutputTargetFolder>lib</BuildOutputTargetFolder>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PackageId>AvroGen.NET</PackageId>
     <Title>AvroGen.NET</Title>
-    <PackageTags>avro;schema-registry;code-generation;msbuild</PackageTags>
+    <PackageTags>avro;schema-registry;code-generation;kafka</PackageTags>
     <AssemblyName>AvroGen.NET</AssemblyName>
     <RootNamespace>AvroGen.NET</RootNamespace>
+    <PackageProjectUrl>https://github.com/iiitpux/AvroGen.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iiitpux/AvroGen.NET</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="Build\**" Pack="true" PackagePath="build" />
+    <Content Include="build\**" PackagePath="build\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Apache.Avro" Version="1.12.0" />
@@ -28,10 +42,6 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="build\**" PackagePath="build\" />
   </ItemGroup>
 
   <Target Name="CopyDependencies" AfterTargets="Build">
