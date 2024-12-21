@@ -19,6 +19,6 @@
     </AvroGen>
   </ItemGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)..\..\src\AvroGen.NET\Build\AvroGen.NET.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\src\AvroGen.NET\build\AvroGen.NET.targets" />
 
 </Project>

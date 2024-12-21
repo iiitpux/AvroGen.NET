@@ -43,10 +43,8 @@
     <None Include="build\*.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
 
-  <Target Name="LinkDllToBuild" BeforeTargets="BeforeBuild">
-    <Delete Files="$(ProjectDir)build\$(AssemblyName).dll" />
-    <Exec Command="mklink &quot;$(ProjectDir)build\$(AssemblyName).dll&quot; &quot;$(MSBuildProjectDirectory)\$(OutputPath)$(AssemblyName).dll&quot;" 
-          Condition="!Exists('$(ProjectDir)build\$(AssemblyName).dll')" 
-          IgnoreExitCode="true" />
-  </Target>
+  <ItemGroup>
+    <Content Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
 </Project>
