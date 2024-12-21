@@ -12,13 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E8F384C1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.UnitTests", "tests\AvroGen.NET.UnitTests\AvroGen.NET.UnitTests.csproj", "{F8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.IntegrationTests", "tests\AvroGen.NET.IntegrationTests\AvroGen.NET.IntegrationTests.csproj", "{G8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.IntegrationTests", "tests\AvroGen.NET.IntegrationTests\AvroGen.NET.IntegrationTests.csproj", "{00000000-0000-0000-0000-000000000000}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{H8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{00000000-0000-0000-0000-000000000000}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Examples", "examples\AvroGen.NET.Examples\AvroGen.NET.Examples.csproj", "{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{J8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{00000000-0000-0000-0000-000000000000}"
 	ProjectSection(SolutionItems) = preProject
 		infrastructure\docker-compose.yml = infrastructure\docker-compose.yml
 		infrastructure\README.md = infrastructure\README.md
@@ -27,10 +25,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastru
 		infrastructure\stop.ps1 = infrastructure\stop.ps1
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{K8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{00000000-0000-0000-0000-000000000000}"
 	ProjectSection(SolutionItems) = preProject
 		schemas\test-schema.avsc = schemas\test-schema.avsc
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvroGen.NET.Examples", "examples\AvroGen.NET.Examples\AvroGen.NET.Examples.csproj", "{77FABD2F-0A56-438C-81D4-1719162D6546}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +58,10 @@ Global
 		{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77FABD2F-0A56-438C-81D4-1719162D6546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77FABD2F-0A56-438C-81D4-1719162D6546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77FABD2F-0A56-438C-81D4-1719162D6546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77FABD2F-0A56-438C-81D4-1719162D6546}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,5 +72,6 @@ Global
 		{F8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B} = {E8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}
 		{G8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B} = {E8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}
 		{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B} = {H8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}
+		{00000000-0000-0000-0000-000000000000} = {E8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}
 	EndGlobalSection
 EndGlobal

@@ -6,7 +6,7 @@ namespace AvroGen.NET
     public class GenerateAvroClassesTask : MSBuildTask
     {
         [Required]
-        public ITaskItem[] Schemas { get; set; } = Array.Empty<ITaskItem>();
+        public ITaskItem[] AvroSchemas { get; set; } = Array.Empty<ITaskItem>();
 
         [Required]
         public string SchemaRegistryUrl { get; set; } = string.Empty;
@@ -27,7 +27,7 @@ namespace AvroGen.NET
                     OutputDirectory = OutputDirectory
                 };
 
-                foreach (var schema in Schemas)
+                foreach (var schema in AvroSchemas)
                 {
                     var subject = schema.GetMetadata("Subject");
                     var version = int.Parse(schema.GetMetadata("Version"));

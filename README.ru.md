@@ -39,13 +39,20 @@ dotnet tool install -g AvroGen.NET.Tool
   </ItemGroup>
 
   <ItemGroup>
-    <AvroSchema Include="test-schema">
+    <AvroSchema>
       <Subject>test-schema-value</Subject>
       <Version>1</Version>
       <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
       <OutputPath>$(GeneratedCodePath)</OutputPath>
     </AvroSchema>
   </ItemGroup>
+
+  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
+    <GenerateAvroClassesTask
+      AvroSchemas="@(AvroSchema)"
+      SchemaRegistryUrl="$(SchemaRegistryUrl)"
+      OutputDirectory="$(GeneratedCodePath)" />
+  </Target>
 </Project>
 ```
 

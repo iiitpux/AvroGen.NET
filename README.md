@@ -32,6 +32,7 @@ Add the following to your project file:
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
+    <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,13 +40,19 @@ Add the following to your project file:
   </ItemGroup>
 
   <ItemGroup>
-    <AvroSchema Include="test-schema">
+    <AvroSchema Include="test-schema-value">
       <Subject>test-schema-value</Subject>
       <Version>1</Version>
-      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
       <OutputPath>$(GeneratedCodePath)</OutputPath>
     </AvroSchema>
   </ItemGroup>
+
+  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
+    <GenerateAvroClassesTask
+      AvroSchemas="@(AvroSchema)"
+      SchemaRegistryUrl="$(SchemaRegistryUrl)"
+      OutputDirectory="$(GeneratedCodePath)" />
+  </Target>
 </Project>
 ```
 
