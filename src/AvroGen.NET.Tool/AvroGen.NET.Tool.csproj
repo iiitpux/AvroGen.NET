@@ -12,11 +12,11 @@
     
     <!-- NuGet Package Information -->
     <PackageId>AvroGen.NET.Tool</PackageId>
-    <Version>0.3.7</Version>
+    <Version>0.3.8</Version>
     <Authors>iiitpux</Authors>
     <Company>iiitpux</Company>
-    <Description>A command-line tool for generating C# classes from Apache Avro schemas</Description>
-    <PackageTags>avro;codegen;apache-avro;tool</PackageTags>
+    <Description>A .NET tool for generating C# classes from Avro schemas</Description>
+    <PackageTags>avro;codegen</PackageTags>
     <PackageProjectUrl>https://github.com/iiitpux/AvroGen.NET</PackageProjectUrl>
     <RepositoryUrl>https://github.com/iiitpux/AvroGen.NET</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
