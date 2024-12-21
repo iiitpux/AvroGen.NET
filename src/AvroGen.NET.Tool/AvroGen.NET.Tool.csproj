@@ -12,7 +12,7 @@
     
     <!-- NuGet Package Information -->
     <PackageId>AvroGen.NET.Tool</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <Authors>iiitpux</Authors>
     <Company>iiitpux</Company>
     <Description>Command-line tool for generating C# classes from Avro schemas stored in Schema Registry</Description>
