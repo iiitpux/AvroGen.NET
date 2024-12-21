@@ -5,8 +5,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>AvroGen.NET.Tool</AssemblyName>
-    <RootNamespace>AvroGen.NET.Tool</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>avrogennet</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
