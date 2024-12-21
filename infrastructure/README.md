@@ -1,5 +1,7 @@
 # Infrastructure
 
+[Русская версия](README.ru.md)
+
 This directory contains the infrastructure setup for running Kafka and Schema Registry locally using Docker.
 
 ## Prerequisites
