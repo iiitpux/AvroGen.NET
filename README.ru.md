@@ -49,6 +49,33 @@ avrogennet --schema-registry-url http://localhost:8081 --subject user-value --sc
 - `--schema-version` - версия схемы
 - `--output` - путь для сохранения сгенерированного класса
 
+## Пример
+
+Вот полный пример использования AvroGen.NET в вашем проекте:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AvroGen.NET" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvroSchema Include="test-schema">
+      <Subject>test-schema-value</Subject>
+      <Version>1</Version>
+      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+      <OutputPath>$(GeneratedCodePath)</OutputPath>
+    </AvroSchema>
+  </ItemGroup>
+</Project>
+```
+
 ## Локальная разработка
 
 ### Требования

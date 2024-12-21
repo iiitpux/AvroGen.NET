@@ -41,26 +41,7 @@ TODO: Split test project into two separate projects
      * Health checks
    - Add documentation for infrastructure setup
 
-6. Create and publish NuGet package
-   - Configure package metadata in .csproj:
-     * Package description
-     * Version
-     * Authors
-     * License
-     * Project URL
-     * Tags
-   - Add README.md as package documentation
-   - Add package icon
-   - Setup versioning strategy (SemVer)
-   - Configure CI/CD for package publishing:
-     * Build package
-     * Run tests
-     * Sign package
-     * Publish to NuGet.org
-   - Add installation and usage instructions to documentation
-   - Setup pre-release package publishing for development
-
-7. Improve error handling and logging
+6. Improve error handling and logging
    - Add detailed error messages for common failures:
      * Schema Registry connection issues
      * Invalid schema format
@@ -70,7 +51,7 @@ TODO: Split test project into two separate projects
    - Add telemetry options (optional)
    - Add troubleshooting guide
 
-8. Add configuration options
+7. Add configuration options
    - Schema Registry authentication
    - Custom naming conventions for generated classes
    - Namespace mapping options
@@ -79,7 +60,7 @@ TODO: Split test project into two separate projects
    - Output path customization
    - Source generation support (.NET 6+)
 
-9. Performance optimizations
+8. Performance optimizations
    - Cache generated classes
    - Parallel schema processing
    - Lazy loading of schemas
@@ -87,7 +68,7 @@ TODO: Split test project into two separate projects
    - Memory usage improvements
    - Benchmark tests
 
-10. Additional features
+9. Additional features
     - Schema validation CLI tool
     - Visual Studio extension
     - Schema visualization
@@ -97,7 +78,7 @@ TODO: Split test project into two separate projects
     - Support for schema references
     - Custom serialization formats
 
-11. Documentation improvements
+10. Documentation improvements
     - API documentation
     - Architecture overview
     - Performance guidelines

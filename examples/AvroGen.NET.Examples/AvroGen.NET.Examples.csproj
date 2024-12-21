@@ -5,15 +5,20 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.6.1" />
-    <PackageReference Include="Confluent.Kafka" Version="2.6.1" />
+    <ProjectReference Include="..\..\src\AvroGen.NET\AvroGen.NET.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AvroGen.NET\AvroGen.NET.csproj" />
+    <AvroSchema Include="test-schema">
+      <Subject>test-schema-value</Subject>
+      <Version>1</Version>
+      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+      <OutputPath>$(GeneratedCodePath)</OutputPath>
+    </AvroSchema>
   </ItemGroup>
 
 </Project>

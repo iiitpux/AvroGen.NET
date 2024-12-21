@@ -74,17 +74,15 @@ Here's a complete example of how to use AvroGen.NET in your project:
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <GeneratedCodePath>$(MSBuildProjectDirectory)\Generated</GeneratedCodePath>
+    <GeneratedCodePath>$(MSBuildProjectDirectory)/Generated</GeneratedCodePath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="1.0.0" />
-    <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0" />
-    <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0" />
+    <PackageReference Include="AvroGen.NET" Version="0.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <AvroSchema Include="Schemas\test-schema.avsc">
+    <AvroSchema Include="test-schema">
       <Subject>test-schema-value</Subject>
       <Version>1</Version>
       <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
