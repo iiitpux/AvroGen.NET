@@ -18,6 +18,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{H8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Examples", "examples\AvroGen.NET.Examples\AvroGen.NET.Examples.csproj", "{I8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{J8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\docker-compose.yml = infrastructure\docker-compose.yml
+		infrastructure\README.md = infrastructure\README.md
+		infrastructure\register-schema.ps1 = infrastructure\register-schema.ps1
+		infrastructure\start.ps1 = infrastructure\start.ps1
+		infrastructure\stop.ps1 = infrastructure\stop.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{K8F384C1-F0D7-4F0B-9F9A-9F7A6A5F1F1B}"
+	ProjectSection(SolutionItems) = preProject
+		schemas\test-schema.avsc = schemas\test-schema.avsc
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
