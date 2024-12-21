@@ -38,60 +38,15 @@
     </Content>
   </ItemGroup>
 
-  <Target Name="EnsureBuildDirectoryExists" BeforeTargets="BeforeBuild">
-    <MakeDir Directories="$(ProjectDir)build" />
-  </Target>
-
-  <Target Name="CreateBuildFiles" DependsOnTargets="EnsureBuildDirectoryExists" BeforeTargets="BeforeBuild">
-    <PropertyGroup>
-      <PropsContent>
-<![CDATA[
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <AvroGenAssembly Include="$(MSBuildThisFileDirectory)..\lib\net8.0\AvroGen.NET.dll" />
+    <None Include="build\*.props" Pack="true" PackagePath="build" />
+    <None Include="build\*.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
-</Project>
-]]>
-      </PropsContent>
-      <TargetsContent>
-<![CDATA[
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask TaskName="AvroGen.NET.GenerateAvroClassesTask" AssemblyFile="@(AvroGenAssembly)" />
-  
-  <Target Name="GenerateAvroClasses" BeforeTargets="CoreCompile">
-    <GenerateAvroClassesTask
-      AvroItems="@(AvroGen)"
-      GenerateAvroClasses="$(GenerateAvroClasses)" />
-  </Target>
-</Project>
-]]>
-      </TargetsContent>
-    </PropertyGroup>
-    
-    <WriteLinesToFile File="$(ProjectDir)build\AvroGen.NET.props" Lines="$(PropsContent)" Overwrite="true" />
-    <WriteLinesToFile File="$(ProjectDir)build\AvroGen.NET.targets" Lines="$(TargetsContent)" Overwrite="true" />
-  </Target>
 
-  <Target Name="CopyBuildFiles" DependsOnTargets="CreateBuildFiles" BeforeTargets="Build">
-    <ItemGroup>
-      <BuildFiles Include="$(OutputPath)*.dll" />
-    </ItemGroup>
-    <Copy SourceFiles="@(BuildFiles)" 
-          DestinationFolder="$(ProjectDir)build"
-          SkipUnchangedFiles="true"
-          OverwriteReadOnlyFiles="true"
-          Retries="0"
-          ContinueOnError="true">
-      <Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles" />
-    </Copy>
+  <Target Name="LinkDllToBuild" BeforeTargets="BeforeBuild">
+    <Delete Files="$(ProjectDir)build\$(AssemblyName).dll" />
+    <Exec Command="mklink &quot;$(ProjectDir)build\$(AssemblyName).dll&quot; &quot;$(MSBuildProjectDirectory)\$(OutputPath)$(AssemblyName).dll&quot;" 
+          Condition="!Exists('$(ProjectDir)build\$(AssemblyName).dll')" 
+          IgnoreExitCode="true" />
   </Target>
-
-  <Target Name="CleanBuildFiles" BeforeTargets="Clean">
-    <Delete Files="$(ProjectDir)build\*.dll" ContinueOnError="true" />
-    <Delete Files="$(ProjectDir)build\AvroGen.NET.props" ContinueOnError="true" />
-    <Delete Files="$(ProjectDir)build\AvroGen.NET.targets" ContinueOnError="true" />
-  </Target>
-
 </Project>
