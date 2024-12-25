@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  nuget:
+    image: sunside/simple-nuget-server
+    ports:
+      - "5555:5000"
+    volumes:
+      - nuget-packages:/var/nuget
+    environment:
+      - NUGET_API_KEY=NUGET-SERVER-API-KEY
+
+volumes:
+  nuget-packages:

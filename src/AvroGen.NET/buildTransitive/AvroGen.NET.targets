@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <AvailableItemName Include="AvroSchema" />
+  </ItemGroup>
+
+  <UsingTask TaskName="AvroGen.NET.GenerateAvroClassesTask" 
+             AssemblyFile="$(AvroGenToolsDir)AvroGen.NET.dll"/>
+
+<Target Name="GenerateAvroClasses" BeforeTargets="BeforeBuild">
+    <Message Text="=== AvroGen.NET Task Diagnostics ===" Importance="high" />
+    <Message Text="Assembly path: $(AvroGenToolsDir)AvroGen.NET.dll" Importance="high" />
+    <Message Text="Assembly exists: $([System.IO.File]::Exists('$(AvroGenToolsDir)AvroGen.NET.dll'))" Importance="high" />
+    <Message Text="Starting Avro class generation..." Importance="high" />
+    <ItemGroup>
+      <AvroSchemaToGenerate Include="@(AvroSchema)">
+        <SchemaRegistryUrl>%(SchemaRegistryUrl)</SchemaRegistryUrl>
+        <Subject>%(Subject)</Subject>
+        <Version>%(Version)</Version>
+        <OutputDirectory>%(OutputDirectory)</OutputDirectory>
+        <Namespace>%(Namespace)</Namespace>
+      </AvroSchemaToGenerate>
+    </ItemGroup>
+
+    <Message Text="Found schemas: @(AvroSchemaToGenerate)" Importance="high" />
+    <Message Text="Schema details:" Importance="high" />
+    <Message Text="  %(AvroSchemaToGenerate.Identity)" Importance="high" />
+    <Message Text="  Registry URL: %(AvroSchemaToGenerate.SchemaRegistryUrl)" Importance="high" />
+    <Message Text="  Subject: %(AvroSchemaToGenerate.Subject)" Importance="high" />
+    <Message Text="  Version: %(AvroSchemaToGenerate.Version)" Importance="high" />
+    <Message Text="  Output: %(AvroSchemaToGenerate.OutputDirectory)" Importance="high" />
+    <Message Text="  Namespace: %(AvroSchemaToGenerate.Namespace)" Importance="high" />
+
+    <GenerateAvroClassesTask
+      Schemas="@(AvroSchemaToGenerate)" />
+
+    <!-- Include generated files in compilation -->
+    <ItemGroup>
+      <Compile Include="$(MSBuildProjectDirectory)\Generated\*.cs" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Clean up generated files -->
+  <Target Name="CleanGeneratedAvroCode" BeforeTargets="Clean">
+    <Delete Files="@(Compile)" Condition="$([System.String]::Copy('%(Compile.Identity)').Contains('\Generated\'))" />
+  </Target>
+</Project>

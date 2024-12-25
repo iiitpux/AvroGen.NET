@@ -2,11 +2,35 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET", "AvroGen.NET\AvroGen.NET.csproj", "{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4B8573F-9A4D-4E4A-B2D3-87F5E6C0A24E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Test", "tests\AvroGen.NET.Test.csproj", "{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET", "src\AvroGen.NET\AvroGen.NET.csproj", "{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Tool", "AvroGen.NET.Tool\AvroGen.NET.Tool.csproj", "{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Tool", "src\AvroGen.NET.Tool\AvroGen.NET.Tool.csproj", "{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B4B8573F-9A4D-4E4A-B2D3-87F5E6C0A24F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.UnitTests", "tests\AvroGen.NET.UnitTests\AvroGen.NET.UnitTests.csproj", "{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{00000000-0000-0000-0000-000000000000}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroGen.NET.Examples", "examples\AvroGen.NET.Examples\AvroGen.NET.Examples.csproj", "{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{11111111-1111-1111-1111-111111111111}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\docker-compose.yml = infrastructure\docker-compose.yml
+		infrastructure\README.md = infrastructure\README.md
+		infrastructure\register-schema.ps1 = infrastructure\register-schema.ps1
+		infrastructure\start.ps1 = infrastructure\start.ps1
+		infrastructure\stop.ps1 = infrastructure\stop.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{22222222-2222-2222-2222-222222222222}"
+	ProjectSection(SolutionItems) = preProject
+		schemas\test-schema.avsc = schemas\test-schema.avsc
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvroGen.NET.Example", "examples\AvroGen.NET.Example\AvroGen.NET.Example.csproj", "{E284957E-5ADE-4F85-903E-B9E726797A9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,17 +38,38 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2B4C5D6-E7F8-9A0B-1C2D-3E4F5A6B7C8D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3C4D5E6-F7A8-9B0C-1D2E-3F4G5A6B7C8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4D5E6F7-A8B9-0C1D-2E3F-4G5H6A7B8C9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E284957E-5ADE-4F85-903E-B9E726797A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E284957E-5ADE-4F85-903E-B9E726797A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E284957E-5ADE-4F85-903E-B9E726797A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E284957E-5ADE-4F85-903E-B9E726797A9C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D3C2A0A3-6E6C-4711-9C6E-E3B876B44F36} = {A4B8573F-9A4D-4E4A-B2D3-87F5E6C0A24E}
+		{F8F4C7BC-9E23-4C7D-AE4A-58D4D8E9B345} = {A4B8573F-9A4D-4E4A-B2D3-87F5E6C0A24E}
+		{E3C2A0A3-6E6C-4711-9C6E-E3B876B44F37} = {B4B8573F-9A4D-4E4A-B2D3-87F5E6C0A24F}
+		{F3C2A0A3-6E6C-4711-9C6E-E3B876B44F38} = {00000000-0000-0000-0000-000000000000}
+		{E284957E-5ADE-4F85-903E-B9E726797A9C} = {00000000-0000-0000-0000-000000000000}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E9F9E28-6F2D-4C6E-8F8D-38E1E4E7F2E5}
 	EndGlobalSection
 EndGlobal

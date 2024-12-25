@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0" />
+    <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AvroGen.NET\AvroGen.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvroSchema Include="user-value">
+      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+      <Subject>user-value</Subject>
+      <Version>1</Version>
+      <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
+      <Namespace>AvroGen.NET.Examples.Generated</Namespace>
+    </AvroSchema>
+  </ItemGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)..\..\src\AvroGen.NET\build\AvroGen.NET.targets" />
+
+</Project>

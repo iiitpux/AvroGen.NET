@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+        <AvroSchema Include=".">
+            <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+            <Subject>user-value</Subject>
+            <Version>1</Version>
+            <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
+            <Namespace>$(RootNamespace).Generated</Namespace>
+        </AvroSchema>
+    </ItemGroup>
+    <Target Name="ShowMessageBeforeBuild" BeforeTargets="Build">
+        <Message Text="Сообщение, которое выводится до начала сборки" Importance="high" />
+    </Target>
+    <ItemGroup>
+        <PackageReference Include="Apache.Avro" Version="1.11.3"/>
+        <PackageReference Include="AvroGen.NET" Version="0.4.1" />
+        <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0"/>
+        <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0"/>
+        <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all"/>
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" PrivateAssets="all"/>
+        <PackageReference Include="System.CodeDom" Version="8.0.0"/>
+    </ItemGroup>
+</Project>

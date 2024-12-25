@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <!-- Tool Information -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>avrogennet</ToolCommandName>
+    
+    <!-- NuGet Package Information -->
+    <PackageId>AvroGen.NET.Tool</PackageId>
+    <Version>0.4.1</Version>
+    <Authors>iiitpux</Authors>
+    <Company>iiitpux</Company>
+    <Description>A .NET tool for generating C# classes from Avro schemas stored in Schema Registry</Description>
+    <PackageTags>avro;codegen;schema-registry;confluent;kafka</PackageTags>
+    <PackageProjectUrl>https://github.com/iiitpux/AvroGen.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iiitpux/AvroGen.NET</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Build Configuration -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AvroGen.NET\AvroGen.NET.csproj" />
+  </ItemGroup>
+
+</Project>

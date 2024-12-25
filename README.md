@@ -1,105 +1,104 @@
 # AvroGen.NET
 
-AvroGen.NET is an MSBuild task that automatically generates C# classes from Avro schemas stored in a Schema Registry. It simplifies the process of working with Avro schemas in .NET applications by integrating directly into your build process.
+MSBuild-based tool for generating C# classes from Avro schemas stored in Schema Registry.
+
+[Russian version](README.ru.md)
 
 ## Features
 
 - Automatic C# class generation from Avro schemas
-- Integration with Schema Registry
-- MSBuild task for seamless build process integration
-- Support for schema versioning
-- Clean and maintainable generated code
-- NuGet package for easy distribution
+- Integration with Confluent Schema Registry
+- MSBuild integration for automatic code generation during build
+- Command-line tool for manual code generation
+- Support for all Avro data types
+- Namespace customization
+- Generated classes are compatible with Confluent.SchemaRegistry.Serdes.Avro
 
 ## Installation
 
-Install the NuGet package in your project:
+### NuGet Package (MSBuild Integration)
 
 ```bash
 dotnet add package AvroGen.NET
 ```
 
+### Command Line Tool
+
+```bash
+dotnet tool install -g AvroGen.NET.Tool
+```
+
 ## Usage
 
-1. Add the Schema Registry URL and schema details to your project file:
+### MSBuild Integration (Recommended)
+
+Add the following to your project file:
 
 ```xml
 <ItemGroup>
-  <AvroSchema Include="Schemas\your-schema.avsc">
+  <AvroSchema Include=".">
+    <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
     <Subject>your-schema-subject</Subject>
     <Version>1</Version>
-    <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
-    <OutputPath>$(MSBuildProjectDirectory)\Generated</OutputPath>
+    <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
+    <Namespace>$(RootNamespace).Generated</Namespace>
   </AvroSchema>
 </ItemGroup>
 ```
 
-2. Build your project. The C# classes will be automatically generated in the specified output directory.
+The classes will be generated automatically during build. You can also generate them manually by running:
 
-## Configuration Options
-
-- `Subject`: The Schema Registry subject name
-- `Version`: The schema version to use (optional, defaults to latest)
-- `SchemaRegistryUrl`: URL of your Schema Registry instance
-- `OutputPath`: Directory where generated classes will be placed
-
-## Example
-
-Here's a complete example of how to use AvroGen.NET in your project:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <GeneratedCodePath>$(MSBuildProjectDirectory)\Generated</GeneratedCodePath>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AvroGen.NET" Version="1.0.0" />
-    <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0" />
-    <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AvroSchema Include="Schemas\test-schema.avsc">
-      <Subject>test-schema-value</Subject>
-      <Version>1</Version>
-      <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
-      <OutputPath>$(GeneratedCodePath)</OutputPath>
-    </AvroSchema>
-  </ItemGroup>
-</Project>
-```
-
-## Requirements
-
-- .NET 8.0 or later
-- Access to a Schema Registry instance
-- MSBuild 17.0 or later
-
-## Building from Source
-
-1. Clone the repository:
-```bash
-git clone https://github.com/iiitpux/AvroGen.NET.git
-```
-
-2. Build the solution:
 ```bash
 dotnet build
 ```
 
-## Contributing
+### Command Line Tool
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+For one-time generation or when you need more control, you can use the command line tool:
+
+```bash
+# Generate from latest schema version
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --output ./Generated
+
+# Generate from specific schema version
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./Generated --namespace MyCompany.Models
+```
+
+Available options:
+- `--schema-registry-url` (required): URL of the Schema Registry
+- `--subject` (required): Schema Registry subject name
+- `--schema-version` (optional): Schema version (defaults to latest)
+- `--output` (optional): Output directory (defaults to ./Generated)
+- `--namespace` (optional): Namespace for generated classes (defaults to subject name)
+
+## Configuration
+
+The `AvroSchema` item supports the following metadata:
+
+- `SchemaRegistryUrl` - URL of the Schema Registry
+- `Subject` - Schema Registry subject name
+- `Version` - Schema version (optional, defaults to latest)
+- `OutputDirectory` - Directory where the generated classes will be placed
+- `Namespace` - Namespace for generated classes (optional, defaults to subject name)
+
+## Example
+
+Check out the [example project](examples/AvroGen.NET.Example) for a complete working example.
+
+## How it works
+
+1. During build, AvroGen.NET connects to the specified Schema Registry
+2. Retrieves the Avro schema for the specified subject and version
+3. Generates C# classes that match the schema structure
+4. Places generated files in the specified output directory
+5. Includes generated files in compilation
+
+Generated classes:
+- Implement `ISpecificRecord` interface from Apache.Avro
+- Support serialization/deserialization with Confluent.SchemaRegistry.Serdes.Avro
+- Include all necessary properties and data types from the Avro schema
+- Maintain schema compatibility for seamless integration with Kafka
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Apache Avro](https://avro.apache.org/) for the Avro serialization system
-- [Confluent Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) for schema management
-- The .NET community for inspiration and support
+MIT

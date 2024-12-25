@@ -26,6 +26,13 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+[Bb]uild/
+src/AvroGen.NET/build/*
+!src/AvroGen.NET/build/AvroGen.NET.targets
+!src/AvroGen.NET/build/AvroGen.NET.props
+
+[Tt]ools/
+src/AvroGen.NET/tools/*
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

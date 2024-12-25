@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <AvroGenToolsDir>$(MSBuildThisFileDirectory)..\tools\net8.0\</AvroGenToolsDir>
+  </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)AvroGen.NET.targets" />
+</Project>

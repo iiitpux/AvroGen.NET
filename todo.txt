@@ -1,0 +1,89 @@
+TODO: Split test project into two separate projects
+
+1. Create AvroGen.NET.Tests project for unit tests
+   - Move GeneratedClassTests.cs to the new project
+   - Add new test cases for schema generation
+   - Add test cases for MSBuild task
+   - Configure test project with xUnit
+
+2. Rename current test project to AvroGen.NET.Examples
+   - Keep Kafka integration example
+   - Add more example scenarios:
+     * Basic schema generation
+     * Multiple schema versions
+     * Different Avro types
+     * Schema evolution
+     * Error handling cases
+   - Add README with usage instructions
+   - Add comments explaining each example
+
+3. Update solution file
+   - Add new test project
+   - Reorganize project structure
+   - Update project references
+
+4. Update build pipeline
+   - Add test runs for both projects
+   - Configure test coverage reporting
+   - Add integration test stage for examples
+
+5. Create infrastructure directory
+   - Move docker-compose.yml to infra/
+   - Add separate docker-compose files for different scenarios:
+     * Basic Kafka setup
+     * Schema Registry with multiple schemas
+     * Development environment
+     * Integration testing environment
+   - Add scripts for infrastructure management:
+     * Start/stop environment
+     * Clean up data
+     * Initialize schemas and topics
+     * Health checks
+   - Add documentation for infrastructure setup
+
+6. Improve error handling and logging
+   - Add detailed error messages for common failures:
+     * Schema Registry connection issues
+     * Invalid schema format
+     * Schema compatibility errors
+     * MSBuild task failures
+   - Implement logging with different levels
+   - Add telemetry options (optional)
+   - Add troubleshooting guide
+
+7. Add configuration options
+   - Schema Registry authentication
+   - Custom naming conventions for generated classes
+   - Namespace mapping options
+   - Custom type mappings
+   - Code generation templates
+   - Output path customization
+   - Source generation support (.NET 6+)
+
+8. Performance optimizations
+   - Cache generated classes
+   - Parallel schema processing
+   - Lazy loading of schemas
+   - Schema validation optimization
+   - Memory usage improvements
+   - Benchmark tests
+
+9. Additional features
+    - Schema validation CLI tool
+    - Visual Studio extension
+    - Schema visualization
+    - Schema compatibility checker
+    - Schema version management UI
+    - Integration with other message brokers (RabbitMQ, Azure Service Bus)
+    - Support for schema references
+    - Custom serialization formats
+
+10. Documentation improvements
+    - API documentation
+    - Architecture overview
+    - Performance guidelines
+    - Security considerations
+    - Migration guide
+    - Contributing guide
+    - Code of conduct
+    - Changelog automation
