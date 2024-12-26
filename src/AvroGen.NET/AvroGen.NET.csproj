@@ -3,7 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.5.2</Version>
+        <Version>0.5.4</Version>
         <Authors>iiitpux</Authors>
         <Company>iiitpux</Company>
         <Description>A .NET tool for generating C# classes from Avro schemas</Description>
