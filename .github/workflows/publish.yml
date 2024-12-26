@@ -21,13 +21,23 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        dotnet restore src/AvroGen.NET/AvroGen.NET.csproj
+        dotnet restore src/AvroGen.NET.Tool/AvroGen.NET.Tool.csproj
+        dotnet restore tests/AvroGen.NET.UnitTests/AvroGen.NET.UnitTests.csproj
+        dotnet restore tests/AvroGen.NET.IntegrationTests/AvroGen.NET.IntegrationTests.csproj
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: |
+        dotnet build src/AvroGen.NET/AvroGen.NET.csproj --configuration Release --no-restore
+        dotnet build src/AvroGen.NET.Tool/AvroGen.NET.Tool.csproj --configuration Release --no-restore
+        dotnet build tests/AvroGen.NET.UnitTests/AvroGen.NET.UnitTests.csproj --configuration Release --no-restore
+        dotnet build tests/AvroGen.NET.IntegrationTests/AvroGen.NET.IntegrationTests.csproj --configuration Release --no-restore
       
     - name: Test
-      run: dotnet test --configuration Release --no-build
+      run: |
+        dotnet test tests/AvroGen.NET.UnitTests/AvroGen.NET.UnitTests.csproj --configuration Release --no-build
+        dotnet test tests/AvroGen.NET.IntegrationTests/AvroGen.NET.IntegrationTests.csproj --configuration Release --no-build
       
     - name: Pack Library
       run: dotnet pack src/AvroGen.NET/AvroGen.NET.csproj --configuration Release --no-build --output nupkg
