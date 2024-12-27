@@ -54,22 +54,22 @@ dotnet build
 
 ### Консольный инструмент
 
-Для разовой генерации или когда вам нужен больший контроль, вы можете использовать консольный инструмент:
+Для разового использования или когда нужен больший контроль, вы можете использовать инструмент командной строки:
 
 ```bash
-# Генерация из последней версии схемы
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --output ./Generated
+# Сгенерировать из последней версии схемы
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --output-directory ./Generated
 
-# Генерация из конкретной версии схемы
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./Generated --namespace MyCompany.Models
+# Сгенерировать из конкретной версии схемы
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --version 1 --output-directory ./Generated --namespace MyCompany.Models
 ```
 
-Доступные опции:
-- `--schema-registry-url` (обязательный): URL адрес Schema Registry
-- `--subject` (обязательный): Имя схемы в Schema Registry
-- `--schema-version` (необязательный): Версия схемы (по умолчанию используется последняя)
-- `--output` (необязательный): Директория для вывода (по умолчанию ./Generated)
-- `--namespace` (необязательный): Пространство имен для генерируемых классов (по умолчанию используется имя схемы)
+Доступные параметры:
+- `--schema-registry-url` (обязательный): URL Schema Registry
+- `--subject` (обязательный): Имя субъекта в Schema Registry
+- `--version` (опционально): Версия схемы (по умолчанию используется последняя)
+- `--output-directory` (опционально): Директория для сгенерированных файлов (по умолчанию ./Generated)
+- `--namespace` (опционально): Пространство имен для сгенерированных классов (по умолчанию используется имя субъекта)
 
 ## Настройка
 

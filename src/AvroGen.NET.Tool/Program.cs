@@ -12,13 +12,13 @@ var subjectOption = new Option<string>(
 ) { IsRequired = true };
 
 var versionOption = new Option<int?>(
-    "--schema-version",
+    "--version",
     () => null,
     "The version of the schema (optional, defaults to latest)"
 );
 
 var outputOption = new Option<string>(
-    "--output",
+    "--output-directory",
     () => "./Generated",
     "The output path for the generated class"
 );

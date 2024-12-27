@@ -58,17 +58,17 @@ For one-time generation or when you need more control, you can use the command l
 
 ```bash
 # Generate from latest schema version
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --output ./Generated
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --output-directory ./Generated
 
 # Generate from specific schema version
-avrogennet --schema-registry-url http://localhost:8081 --subject user-value --schema-version 1 --output ./Generated --namespace MyCompany.Models
+avrogennet --schema-registry-url http://localhost:8081 --subject user-value --version 1 --output-directory ./Generated --namespace MyCompany.Models
 ```
 
 Available options:
 - `--schema-registry-url` (required): URL of the Schema Registry
 - `--subject` (required): Schema Registry subject name
-- `--schema-version` (optional): Schema version (defaults to latest)
-- `--output` (optional): Output directory (defaults to ./Generated)
+- `--version` (optional): Schema version (defaults to latest)
+- `--output-directory` (optional): Output directory (defaults to ./Generated)
 - `--namespace` (optional): Namespace for generated classes (defaults to subject name)
 
 ## Configuration
