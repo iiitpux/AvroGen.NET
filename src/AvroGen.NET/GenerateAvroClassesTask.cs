@@ -26,7 +26,8 @@ namespace AvroGen.NET
         /// <returns>True if task execution was successful; otherwise, false.</returns>
         public override bool Execute()
         {
-            System.Diagnostics.Debugger.Launch();
+            //todo- delete this
+            //System.Diagnostics.Debugger.Launch();
             try
             {
                 Log.LogMessage(MessageImportance.High, "Starting Avro class generation...");
