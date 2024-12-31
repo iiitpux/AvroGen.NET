@@ -7,8 +7,16 @@ using System.Collections.Generic;
 
 namespace AvroGen.NET;
 
+/// <summary>
+/// Генератор кода для преобразования Avro схем в C# классы.
+/// </summary>
 public class AvroCodeGenerator
 {
+    /// <summary>
+    /// Генерирует C# код из Avro схемы.
+    /// </summary>
+    /// <param name="schema">Avro схема</param>
+    /// <returns>Сгенерированный C# код</returns>
     public string GenerateCode(Schema schema)
     {
         if (schema == null)
@@ -48,6 +56,41 @@ public class AvroCodeGenerator
         using var writer = new StringWriter();
         codeProvider.GenerateCodeFromCompileUnit(codeUnit, writer, options);
         return writer.ToString();
+    }
+
+    /// <summary>
+    /// Получает имя класса из схемы.
+    /// </summary>
+    /// <param name="schema">Avro схема</param>
+    /// <returns>Имя класса</returns>
+    private string GetClassName(Schema schema)
+    {
+        if (schema is RecordSchema recordSchema)
+        {
+            var fullName = recordSchema.Name;
+            var lastDot = fullName.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                return fullName.Substring(lastDot + 1);
+            }
+            return fullName;
+        }
+        return schema.Name ?? "GeneratedClass";
+    }
+
+    private string GetNamespace(Schema schema)
+    {
+        if (schema is RecordSchema recordSchema)
+        {
+            var fullName = recordSchema.Name;
+            var lastDot = fullName.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                return fullName.Substring(0, lastDot);
+            }
+            return recordSchema.Namespace ?? "Generated";
+        }
+        return "Generated";
     }
 
     private void GenerateRecordClasses(Schema schema, CodeNamespace codeNamespace)
@@ -126,41 +169,23 @@ public class AvroCodeGenerator
             Schema.Type.Double => new CodeTypeReference(typeof(double)),
             Schema.Type.Boolean => new CodeTypeReference(typeof(bool)),
             Schema.Type.Array => new CodeTypeReference(
-                typeof(List<>).Name,
-                new CodeTypeReference[] { GetCodeTypeReference(((ArraySchema)schema).ItemSchema) }
+                typeof(System.Collections.Generic.List<>).FullName,
+                new[] { GetCodeTypeReference(((ArraySchema)schema).ItemSchema) }
             ),
             Schema.Type.Record => new CodeTypeReference(GetClassName(schema)),
+            Schema.Type.Union => GetCodeTypeReferenceForUnion(schema),
             _ => throw new NotSupportedException($"Schema type {schema.Tag} is not supported")
         };
     }
 
-    private string GetNamespace(Schema schema)
+    private CodeTypeReference GetCodeTypeReferenceForUnion(Schema schema)
     {
-        if (schema is RecordSchema recordSchema)
+        var unionSchema = (UnionSchema)schema;
+        if (unionSchema.Count == 2 && unionSchema[0].Tag == Schema.Type.Null)
         {
-            var fullName = recordSchema.Name;
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot > 0)
-            {
-                return fullName.Substring(0, lastDot);
-            }
-            return recordSchema.Namespace ?? "Generated";
+            var valueType = GetCodeTypeReference(unionSchema[1]);
+            return new CodeTypeReference(typeof(Nullable<>).Name, new[] { valueType });
         }
-        return "Generated";
-    }
-
-    private string GetClassName(Schema schema)
-    {
-        if (schema is RecordSchema recordSchema)
-        {
-            var fullName = recordSchema.Name;
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot > 0)
-            {
-                return fullName.Substring(lastDot + 1);
-            }
-            return fullName;
-        }
-        return schema.Name ?? "GeneratedClass";
+        throw new NotSupportedException("Only nullable unions are supported");
     }
 }

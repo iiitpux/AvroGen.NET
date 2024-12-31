@@ -11,37 +11,44 @@ using System.Collections.Generic;
 namespace AvroGen.NET
 {
     /// <summary>
-    /// Generator for creating C# classes from Avro schemas in Schema Registry.
+    /// Генератор C# классов из Avro схем в Schema Registry.
     /// </summary>
     public class SchemaGenerator
     {
         private readonly SchemaGeneratorConfig _config;
-        private readonly CachedSchemaRegistryClient _schemaRegistry;
+        private readonly ISchemaRegistryClient _schemaRegistryClient;
 
         /// <summary>
-        /// Initializes a new instance of the SchemaGenerator class.
+        /// Создает новый экземпляр генератора схем.
         /// </summary>
-        /// <param name="config">Configuration for schema generation.</param>
+        /// <param name="config">Конфигурация генератора</param>
         public SchemaGenerator(SchemaGeneratorConfig config)
+            : this(config, new CachedSchemaRegistryClient(new SchemaRegistryConfig { Url = config.SchemaRegistryUrl }))
         {
-            _config = config;
-            _schemaRegistry = new CachedSchemaRegistryClient(new SchemaRegistryConfig
-            {
-                Url = config.SchemaRegistryUrl
-            });
         }
 
         /// <summary>
-        /// Generates C# classes from the configured Schema Registry schema.
+        /// Создает новый экземпляр генератора схем с пользовательским клиентом Schema Registry.
+        /// </summary>
+        /// <param name="config">Конфигурация генератора</param>
+        /// <param name="schemaRegistryClient">Клиент Schema Registry</param>
+        public SchemaGenerator(SchemaGeneratorConfig config, ISchemaRegistryClient schemaRegistryClient)
+        {
+            _config = config;
+            _schemaRegistryClient = schemaRegistryClient;
+        }
+
+        /// <summary>
+        /// Генерирует C# классы из Avro схемы.
         /// </summary>
         public async Task GenerateAsync()
         {
-            // Get schema from Schema Registry
+            // Получаем схему из реестра
             var registeredSchema = _config.Version.HasValue
-                ? await _schemaRegistry.GetRegisteredSchemaAsync(_config.Subject, _config.Version.Value)
-                : await _schemaRegistry.GetLatestSchemaAsync(_config.Subject);
+                ? await _schemaRegistryClient.GetRegisteredSchemaAsync(_config.Subject, _config.Version.Value)
+                : await _schemaRegistryClient.GetLatestSchemaAsync(_config.Subject);
 
-            // Parse schema and generate code
+            // Парсим схему и генерируем код
             var generator = new CodeGen();
             if (!string.IsNullOrEmpty(_config.Namespace))
             {
@@ -57,16 +64,17 @@ namespace AvroGen.NET
 
             var code = generator.GenerateCode();
 
-            // Create output directory if it doesn't exist
+            // Создаем выходной каталог, если он не существует
             Directory.CreateDirectory(_config.OutputDirectory);
 
-            // Generate output file path
+            // Определяем имя файла
             var schema = Avro.Schema.Parse(registeredSchema.SchemaString);
-            var outputPath = Path.Combine(_config.OutputDirectory, $"{schema.Name}.cs");
+            var fileName = $"{schema.Name}.cs";
+            var filePath = Path.Combine(_config.OutputDirectory, fileName);
 
-            // Write the generated code
+            // Сохраняем сгенерированный код
             using (var provider = new CSharpCodeProvider())
-            using (var writer = new StreamWriter(outputPath))
+            using (var writer = new StreamWriter(filePath))
             {
                 var options = new CodeGeneratorOptions
                 {

@@ -1,63 +1,90 @@
-using AvroGen.NET;
 using System.CommandLine;
+using AvroGen.NET;
 
-var schemaRegistryUrlOption = new Option<string>(
-    "--schema-registry-url",
-    "The URL of the Schema Registry"
-) { IsRequired = true };
+namespace AvroGen.NET.Tool;
 
-var subjectOption = new Option<string>(
-    "--subject",
-    "The subject name in Schema Registry"
-) { IsRequired = true };
-
-var versionOption = new Option<int?>(
-    "--version",
-    () => null,
-    "The version of the schema (optional, defaults to latest)"
-);
-
-var outputOption = new Option<string>(
-    "--output-directory",
-    () => "./Generated",
-    "The output path for the generated class"
-);
-
-var namespaceOption = new Option<string>(
-    "--namespace",
-    () => null,
-    "The namespace for the generated class (optional, defaults to subject name)"
-);
-
-var rootCommand = new RootCommand("Generates C# classes from Avro schemas in Schema Registry");
-rootCommand.AddOption(schemaRegistryUrlOption);
-rootCommand.AddOption(subjectOption);
-rootCommand.AddOption(versionOption);
-rootCommand.AddOption(outputOption);
-rootCommand.AddOption(namespaceOption);
-
-rootCommand.SetHandler(async (string schemaRegistryUrl, string subject, int? version, string output, string? namespaceName) =>
+/// <summary>
+/// Точка входа для консольного приложения AvroGen.NET.Tool.
+/// </summary>
+public class Program
 {
-    try
+    /// <summary>
+    /// Основная точка входа приложения.
+    /// </summary>
+    /// <param name="args">Аргументы командной строки</param>
+    /// <returns>Код возврата: 0 - успех, не 0 - ошибка</returns>
+    public static async Task<int> Main(string[] args)
     {
-        var config = new SchemaGeneratorConfig
+        // Создаем корневую команду
+        var rootCommand = new RootCommand("Генератор C# классов из Avro схем в Schema Registry");
+
+        // Добавляем команду generate
+        var generateCommand = new Command("generate", "Генерирует C# классы из Avro схем");
+
+        // Опции команды
+        var schemaRegistryUrlOption = new Option<string>(
+            "--schema-registry-url",
+            "URL Schema Registry")
+        { IsRequired = true };
+
+        var subjectOption = new Option<string>(
+            "--subject",
+            "Тема схемы в Schema Registry")
+        { IsRequired = true };
+
+        var versionOption = new Option<int?>(
+            "--version",
+            "Версия схемы (необязательно, по умолчанию последняя)");
+
+        var outputDirOption = new Option<string>(
+            "--output-dir",
+            "Каталог для сгенерированных файлов")
+        { IsRequired = true };
+
+        var namespaceOption = new Option<string>(
+            "--namespace",
+            "Пространство имен для сгенерированных классов (необязательно)");
+
+        // Добавляем опции к команде
+        generateCommand.AddOption(schemaRegistryUrlOption);
+        generateCommand.AddOption(subjectOption);
+        generateCommand.AddOption(versionOption);
+        generateCommand.AddOption(outputDirOption);
+        generateCommand.AddOption(namespaceOption);
+
+        // Обработчик команды generate
+        generateCommand.SetHandler(async (string schemaRegistryUrl, string subject, int? version, string outputDir, string? @namespace) =>
         {
-            SchemaRegistryUrl = schemaRegistryUrl,
-            OutputDirectory = output,
-            Namespace = namespaceName,
-            Subject = subject,
-            Version = version
-        };
+            try
+            {
+                // Создаем конфигурацию
+                var config = new SchemaGeneratorConfig
+                {
+                    SchemaRegistryUrl = schemaRegistryUrl,
+                    Subject = subject,
+                    Version = version,
+                    OutputDirectory = outputDir,
+                    Namespace = @namespace
+                };
 
-        var generator = new SchemaGenerator(config);
-        await generator.GenerateAsync();
-        Console.WriteLine($"Successfully generated class for schema {subject} {(version.HasValue ? "version " + version.Value : "(latest version)")}");
-    }
-    catch (Exception ex)
-    {
-        Console.Error.WriteLine($"Error: {ex.Message}");
-        Environment.Exit(1);
-    }
-}, schemaRegistryUrlOption, subjectOption, versionOption, outputOption, namespaceOption);
+                // Создаем генератор и запускаем генерацию
+                var generator = new SchemaGenerator(config);
+                await generator.GenerateAsync();
 
-return await rootCommand.InvokeAsync(args);
+                Console.WriteLine("Генерация завершена успешно");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Ошибка: {ex.Message}");
+                Environment.Exit(1);
+            }
+        },
+        schemaRegistryUrlOption, subjectOption, versionOption, outputDirOption, namespaceOption);
+
+        // Добавляем команду generate к корневой команде
+        rootCommand.AddCommand(generateCommand);
+
+        // Запускаем приложение
+        return await rootCommand.InvokeAsync(args);
+    }
+}

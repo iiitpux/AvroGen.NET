@@ -1,44 +1,89 @@
 using Microsoft.Build.Framework;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
+using Confluent.SchemaRegistry;
 
 namespace AvroGen.NET
 {
     /// <summary>
-    /// MSBuild task for generating C# classes from Avro schemas in Schema Registry.
+    /// MSBuild задача для генерации C# классов из Avro схем в Schema Registry.
     /// </summary>
     public class GenerateAvroClassesTask : MSBuildTask
     {
+        private readonly ISchemaRegistryClient? _schemaRegistryClient;
+
         /// <summary>
-        /// Gets or sets the schema items to process.
-        /// Each item must have the following metadata:
-        /// - SchemaRegistryUrl: URL of the Schema Registry
-        /// - Subject: Schema subject in Schema Registry
-        /// - Version: Schema version in Schema Registry (optional)
-        /// - OutputPath: Output directory for generated classes
-        /// - Namespace: Namespace for generated classes (optional)
+        /// Инициализирует новый экземпляр задачи GenerateAvroClassesTask.
+        /// </summary>
+        public GenerateAvroClassesTask()
+        {
+        }
+
+        /// <summary>
+        /// Инициализирует новый экземпляр задачи GenerateAvroClassesTask с указанным клиентом Schema Registry.
+        /// </summary>
+        /// <param name="schemaRegistryClient">Клиент Schema Registry для использования</param>
+        public GenerateAvroClassesTask(ISchemaRegistryClient schemaRegistryClient)
+        {
+            _schemaRegistryClient = schemaRegistryClient;
+        }
+
+        /// <summary>
+        /// Получает или устанавливает элементы схем для обработки.
+        /// Каждый элемент должен иметь следующие метаданные:
+        /// - SchemaRegistryUrl: URL Schema Registry
+        /// - Subject: Тема схемы в Schema Registry
+        /// - Version: Версия схемы в Schema Registry (необязательно)
+        /// - OutputDirectory: Каталог для сгенерированных классов
+        /// - Namespace: Пространство имен для сгенерированных классов (необязательно)
         /// </summary>
         [Required]
         public ITaskItem[] Schemas { get; set; } = Array.Empty<ITaskItem>();
 
         /// <summary>
-        /// Executes the task to generate C# classes from Avro schemas.
+        /// Выполняет задачу генерации C# классов из Avro схем.
         /// </summary>
-        /// <returns>True if task execution was successful; otherwise, false.</returns>
+        /// <returns>True, если выполнение задачи прошло успешно; иначе false.</returns>
         public override bool Execute()
         {
-            //todo- delete this
-            //System.Diagnostics.Debugger.Launch();
             try
             {
-                Log.LogMessage(MessageImportance.High, "Starting Avro class generation...");
+                Log.LogMessage(MessageImportance.High, "Начинаем генерацию Avro классов...");
+
+                if (Schemas == null || Schemas.Length == 0)
+                {
+                    Log.LogError("Не указаны схемы для обработки");
+                    return false;
+                }
 
                 foreach (var schema in Schemas)
                 {
+                    var schemaRegistryUrl = schema.GetMetadata("SchemaRegistryUrl");
+                    var subject = schema.GetMetadata("Subject");
+                    var outputDirectory = schema.GetMetadata("OutputDirectory");
+
+                    if (string.IsNullOrEmpty(schemaRegistryUrl))
+                    {
+                        Log.LogError("Требуется указать SchemaRegistryUrl");
+                        return false;
+                    }
+
+                    if (string.IsNullOrEmpty(subject))
+                    {
+                        Log.LogError("Требуется указать Subject");
+                        return false;
+                    }
+
+                    if (string.IsNullOrEmpty(outputDirectory))
+                    {
+                        Log.LogError("Требуется указать OutputDirectory");
+                        return false;
+                    }
+
                     var config = new SchemaGeneratorConfig
                     {
-                        SchemaRegistryUrl = schema.GetMetadata("SchemaRegistryUrl"),
-                        Subject = schema.GetMetadata("Subject"),
-                        OutputDirectory = schema.GetMetadata("OutputDirectory"),
+                        SchemaRegistryUrl = schemaRegistryUrl,
+                        Subject = subject,
+                        OutputDirectory = outputDirectory,
                         Namespace = schema.GetMetadata("Namespace")
                     };
 
@@ -47,14 +92,17 @@ namespace AvroGen.NET
                         config.Version = version;
                     }
 
-                    // Log configuration details
+                    // Логируем детали конфигурации
                     LogConfiguration(schema, config);
 
-                    // Create output directory
+                    // Создаем выходной каталог
                     Directory.CreateDirectory(config.OutputDirectory);
 
-                    // Generate classes
-                    var generator = new SchemaGenerator(config);
+                    // Генерируем классы
+                    var generator = _schemaRegistryClient != null
+                        ? new SchemaGenerator(config, _schemaRegistryClient)
+                        : new SchemaGenerator(config);
+
                     generator.GenerateAsync().Wait();
                 }
 
@@ -69,15 +117,15 @@ namespace AvroGen.NET
 
         private void LogConfiguration(ITaskItem schema, SchemaGeneratorConfig config)
         {
-            Log.LogMessage(MessageImportance.High, $"Processing schema item: {schema.ItemSpec}");
-            Log.LogMessage(MessageImportance.High, $"Schema Registry URL: {config.SchemaRegistryUrl}");
-            Log.LogMessage(MessageImportance.High, $"Subject: {config.Subject}");
-            Log.LogMessage(MessageImportance.High, $"Version: {config.Version?.ToString() ?? "latest"}");
-            Log.LogMessage(MessageImportance.High, $"Output Directory: {config.OutputDirectory}");
+            Log.LogMessage(MessageImportance.High, $"Обрабатываем схему: {schema.ItemSpec}");
+            Log.LogMessage(MessageImportance.High, $"URL Schema Registry: {config.SchemaRegistryUrl}");
+            Log.LogMessage(MessageImportance.High, $"Тема: {config.Subject}");
+            Log.LogMessage(MessageImportance.High, $"Версия: {config.Version?.ToString() ?? "последняя"}");
+            Log.LogMessage(MessageImportance.High, $"Выходной каталог: {config.OutputDirectory}");
             
             if (!string.IsNullOrEmpty(config.Namespace))
             {
-                Log.LogMessage(MessageImportance.High, $"Namespace: {config.Namespace}");
+                Log.LogMessage(MessageImportance.High, $"Пространство имен: {config.Namespace}");
             }
         }
     }
