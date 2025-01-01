@@ -1,191 +1,476 @@
 using Avro;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using Avro.Specific;
+using Microsoft.CSharp;
+using System.Runtime.InteropServices;
+using Avro.Util;
 
-namespace AvroGen.NET;
-
-/// <summary>
-/// Генератор кода для преобразования Avro схем в C# классы.
-/// </summary>
-public class AvroCodeGenerator
+namespace AvroGen.NET
 {
     /// <summary>
-    /// Генерирует C# код из Avro схемы.
+    /// Генератор кода для преобразования Avro схем в C# классы.
     /// </summary>
-    /// <param name="schema">Avro схема</param>
-    /// <returns>Сгенерированный C# код</returns>
-    public string GenerateCode(Schema schema)
+    public class AvroCodeGenerator
     {
-        if (schema == null)
+        private readonly Dictionary<string, CodeCompileUnit> _compileUnits = new();
+        private readonly HashSet<string> _processedTypes = new();
+
+        /// <summary>
+        /// Генерирует C# код из Avro схемы.
+        /// </summary>
+        /// <param name="schema">Avro схема</param>
+        /// <param name="namespace">Пространство имен для сгенерированных классов</param>
+        /// <returns>Словарь, где ключ - имя файла, значение - сгенерированный код</returns>
+        public Dictionary<string, string> GenerateCode(Schema schema, string? @namespace = null)
         {
-            throw new ArgumentNullException(nameof(schema));
-        }
+            if (schema == null)
+                throw new ArgumentNullException(nameof(schema));
 
-        if (!(schema is RecordSchema))
-        {
-            throw new ArgumentException("Schema must be a record schema", nameof(schema));
-        }
+            _compileUnits.Clear();
+            _processedTypes.Clear();
 
-        var codeProvider = new Microsoft.CSharp.CSharpCodeProvider();
-        var codeUnit = new CodeCompileUnit();
+            // Обрабатываем схему
+            ProcessSchema(schema, @namespace ?? GetNamespace(schema));
 
-        // Добавляем импорты
-        var codeNamespace = new CodeNamespace();
-        codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
-        codeNamespace.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
-        codeNamespace.Imports.Add(new CodeNamespaceImport("Avro"));
-        codeUnit.Namespaces.Add(codeNamespace);
-
-        // Создаем основное пространство имен
-        var mainNamespace = new CodeNamespace(GetNamespace(schema));
-        codeUnit.Namespaces.Add(mainNamespace);
-
-        // Создаем классы для всех типов записей в схеме
-        GenerateRecordClasses(schema, mainNamespace);
-
-        // Генерируем код
-        var options = new CodeGeneratorOptions
-        {
-            BracingStyle = "C",
-            IndentString = "    "
-        };
-
-        using var writer = new StringWriter();
-        codeProvider.GenerateCodeFromCompileUnit(codeUnit, writer, options);
-        return writer.ToString();
-    }
-
-    /// <summary>
-    /// Получает имя класса из схемы.
-    /// </summary>
-    /// <param name="schema">Avro схема</param>
-    /// <returns>Имя класса</returns>
-    private string GetClassName(Schema schema)
-    {
-        if (schema is RecordSchema recordSchema)
-        {
-            var fullName = recordSchema.Name;
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot > 0)
+            var result = new Dictionary<string, string>();
+            var provider = new CSharpCodeProvider();
+            var options = new CodeGeneratorOptions
             {
-                return fullName.Substring(lastDot + 1);
-            }
-            return fullName;
-        }
-        return schema.Name ?? "GeneratedClass";
-    }
+                BracingStyle = "C",
+                IndentString = "    "
+            };
 
-    private string GetNamespace(Schema schema)
-    {
-        if (schema is RecordSchema recordSchema)
-        {
-            var fullName = recordSchema.Name;
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot > 0)
+            foreach (var unit in _compileUnits)
             {
-                return fullName.Substring(0, lastDot);
+                using var writer = new StringWriter();
+                provider.GenerateCodeFromCompileUnit(unit.Value, writer, options);
+                result[unit.Key] = writer.ToString();
             }
-            return recordSchema.Namespace ?? "Generated";
-        }
-        return "Generated";
-    }
 
-    private void GenerateRecordClasses(Schema schema, CodeNamespace codeNamespace)
-    {
-        if (schema is RecordSchema recordSchema)
+            return result;
+        }
+
+        private void ProcessSchema(Schema schema, string @namespace)
         {
-            var codeClass = new CodeTypeDeclaration(GetClassName(schema))
+            switch (schema)
+            {
+                case RecordSchema recordSchema:
+                    GenerateRecordClasses(recordSchema, @namespace);
+                    break;
+                case EnumSchema enumSchema:
+                    GenerateEnumeration(enumSchema, @namespace);
+                    break;
+                case FixedSchema fixedSchema:
+                    GenerateFixed(fixedSchema, @namespace);
+                    break;
+                case ArraySchema arraySchema:
+                    ProcessSchema(arraySchema.ItemSchema, @namespace);
+                    break;
+                case MapSchema mapSchema:
+                    ProcessSchema(mapSchema.ValueSchema, @namespace);
+                    break;
+                case UnionSchema unionSchema:
+                    foreach (var unionType in unionSchema.Schemas)
+                    {
+                        ProcessSchema(unionType, @namespace);
+                    }
+                    break;
+            }
+        }
+
+        private void GenerateEnumeration(EnumSchema schema, string @namespace)
+        {
+            var enumName = GetClassName(schema);
+            var fullName = $"{@namespace}.{enumName}";
+
+            if (_processedTypes.Contains(fullName))
+                return;
+
+            _processedTypes.Add(fullName);
+
+            var codeNamespace = new CodeNamespace(@namespace);
+            var codeUnit = new CodeCompileUnit();
+            codeUnit.Namespaces.Add(codeNamespace);
+
+            var enumDeclaration = new CodeTypeDeclaration(enumName)
+            {
+                IsEnum = true,
+                TypeAttributes = System.Reflection.TypeAttributes.Public
+            };
+
+            // Добавляем значения перечисления
+            foreach (var symbol in schema.Symbols)
+            {
+                var field = new CodeMemberField(typeof(int), symbol);
+                enumDeclaration.Members.Add(field);
+            }
+
+            codeNamespace.Types.Add(enumDeclaration);
+            _compileUnits[$"{enumName}.cs"] = codeUnit;
+        }
+
+        private void GenerateRecordClasses(Schema schema, string @namespace)
+        {
+            if (schema is RecordSchema recordSchema)
+            {
+                var className = GetClassName(schema);
+                var fullName = $"{@namespace}.{className}";
+
+                if (_processedTypes.Contains(fullName))
+                    return;
+
+                _processedTypes.Add(fullName);
+
+                var codeNamespace = new CodeNamespace(@namespace);
+                var codeUnit = new CodeCompileUnit();
+                codeUnit.Namespaces.Add(codeNamespace);
+
+                // Добавляем необходимые импорты
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("Avro"));
+                codeNamespace.Imports.Add(new CodeNamespaceImport("Avro.Specific"));
+
+                var codeType = new CodeTypeDeclaration(className)
+                {
+                    IsClass = true,
+                    TypeAttributes = System.Reflection.TypeAttributes.Public
+                };
+
+                // Добавляем интерфейс ISpecificRecord
+                codeType.BaseTypes.Add(new CodeTypeReference(typeof(ISpecificRecord)));
+
+                // Добавляем поле для схемы
+                var schemaField = new CodeMemberField(typeof(Schema), "_SCHEMA")
+                {
+                    Attributes = MemberAttributes.Private | MemberAttributes.Static | MemberAttributes.Final
+                };
+                schemaField.InitExpression = new CodeSnippetExpression($"Schema.Parse(\"{schema.ToString().Replace("\"", "\\\"")}\")");;
+                codeType.Members.Add(schemaField);
+
+                // Добавляем свойство Schema
+                var schemaProp = new CodeMemberProperty
+                {
+                    Name = "Schema",
+                    Type = new CodeTypeReference(typeof(Schema)),
+                    Attributes = MemberAttributes.Public | MemberAttributes.Final
+                };
+                schemaProp.GetStatements.Add(new CodeMethodReturnStatement(
+                    new CodeFieldReferenceExpression(null, "_SCHEMA")));
+                codeType.Members.Add(schemaProp);
+
+                // Добавляем метод Get
+                var getMethod = new CodeMemberMethod
+                {
+                    Name = "Get",
+                    ReturnType = new CodeTypeReference(typeof(object)),
+                    Attributes = MemberAttributes.Public | MemberAttributes.Final
+                };
+                getMethod.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "fieldPos"));
+
+                var fieldPosRef = new CodeArgumentReferenceExpression("fieldPos");
+                CodeStatement currentStatement = new CodeThrowExceptionStatement(
+                    new CodeObjectCreateExpression(
+                        typeof(AvroRuntimeException),
+                        new CodePrimitiveExpression("Недопустимая позиция поля")));
+
+                // Строим цепочку if-else с конца
+                for (int i = recordSchema.Fields.Count - 1; i >= 0; i--)
+                {
+                    var field = recordSchema.Fields[i];
+                    currentStatement = new CodeConditionStatement(
+                        new CodeBinaryOperatorExpression(
+                            fieldPosRef,
+                            CodeBinaryOperatorType.ValueEquality,
+                            new CodePrimitiveExpression(i)),
+                        new CodeStatement[]
+                        {
+                            new CodeMethodReturnStatement(
+                                new CodePropertyReferenceExpression(
+                                    new CodeThisReferenceExpression(),
+                                    field.Name))
+                        },
+                        new CodeStatement[] { currentStatement });
+                }
+
+                getMethod.Statements.Add(currentStatement);
+                codeType.Members.Add(getMethod);
+
+                // Добавляем метод Put
+                var putMethod = new CodeMemberMethod
+                {
+                    Name = "Put",
+                    ReturnType = new CodeTypeReference(typeof(void)),
+                    Attributes = MemberAttributes.Public | MemberAttributes.Final
+                };
+                putMethod.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "fieldPos"));
+                putMethod.Parameters.Add(new CodeParameterDeclarationExpression(typeof(object), "fieldValue"));
+
+                var fieldValueRef = new CodeArgumentReferenceExpression("fieldValue");
+                CodeStatement currentPutStatement = new CodeThrowExceptionStatement(
+                    new CodeObjectCreateExpression(
+                        typeof(AvroRuntimeException),
+                        new CodePrimitiveExpression("Недопустимая позиция поля")));
+
+                // Строим цепочку if-else с конца
+                for (int i = recordSchema.Fields.Count - 1; i >= 0; i--)
+                {
+                    var field = recordSchema.Fields[i];
+                    currentPutStatement = new CodeConditionStatement(
+                        new CodeBinaryOperatorExpression(
+                            fieldPosRef,
+                            CodeBinaryOperatorType.ValueEquality,
+                            new CodePrimitiveExpression(i)),
+                        new CodeStatement[]
+                        {
+                            new CodeAssignStatement(
+                                new CodePropertyReferenceExpression(
+                                    new CodeThisReferenceExpression(),
+                                    field.Name),
+                                new CodeCastExpression(
+                                    GetCodeTypeReference(field.Schema),
+                                    fieldValueRef)),
+                            new CodeMethodReturnStatement()
+                        },
+                        new CodeStatement[] { currentPutStatement });
+                }
+
+                putMethod.Statements.Add(currentPutStatement);
+                codeType.Members.Add(putMethod);
+
+                // Добавляем поля и свойства
+                foreach (var field in recordSchema.Fields)
+                {
+                    var fieldType = GetCodeTypeReference(field.Schema);
+                    
+                    // Рекурсивно обрабатываем вложенные типы
+                    ProcessSchema(field.Schema, @namespace);
+
+                    // Создаем приватное поле
+                    var fieldName = $"_{field.Name}";
+                    var privateField = new CodeMemberField(fieldType, fieldName);
+                    codeType.Members.Add(privateField);
+
+                    // Создаем публичное свойство
+                    var property = new CodeMemberProperty
+                    {
+                        Name = field.Name,
+                        Type = fieldType,
+                        Attributes = MemberAttributes.Public | MemberAttributes.Final
+                    };
+
+                    property.GetStatements.Add(new CodeMethodReturnStatement(
+                        new CodeFieldReferenceExpression(
+                            new CodeThisReferenceExpression(),
+                            fieldName)));
+
+                    property.SetStatements.Add(new CodeAssignStatement(
+                        new CodeFieldReferenceExpression(
+                            new CodeThisReferenceExpression(),
+                            fieldName),
+                        new CodePropertySetValueReferenceExpression()));
+
+                    codeType.Members.Add(property);
+                }
+
+                codeNamespace.Types.Add(codeType);
+                _compileUnits[$"{className}.cs"] = codeUnit;
+            }
+        }
+
+        private void GenerateFixed(FixedSchema schema, string @namespace)
+        {
+            var className = GetClassName(schema);
+            var fullName = $"{@namespace}.{className}";
+
+            if (_processedTypes.Contains(fullName))
+                return;
+
+            _processedTypes.Add(fullName);
+
+            var codeNamespace = new CodeNamespace(@namespace);
+            var codeUnit = new CodeCompileUnit();
+            codeUnit.Namespaces.Add(codeNamespace);
+
+            // Добавляем необходимые импорты
+            codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
+            codeNamespace.Imports.Add(new CodeNamespaceImport("System.Runtime.InteropServices"));
+
+            var classDeclaration = new CodeTypeDeclaration(className)
             {
                 IsClass = true,
                 TypeAttributes = System.Reflection.TypeAttributes.Public
             };
 
-            // Добавляем поля
-            foreach (var field in recordSchema.Fields)
+            // Добавляем атрибут StructLayout для фиксированного размера
+            var structLayoutAttribute = new CodeAttributeDeclaration(
+                new CodeTypeReference(typeof(StructLayoutAttribute)),
+                new CodeAttributeArgument(
+                    new CodeFieldReferenceExpression(
+                        new CodeTypeReferenceExpression(typeof(LayoutKind)),
+                        "Sequential")));
+            classDeclaration.CustomAttributes.Add(structLayoutAttribute);
+
+            // Добавляем константу размера
+            var sizeConst = new CodeMemberField(typeof(int), "SIZE")
             {
-                var codeField = new CodeMemberField
+                Attributes = MemberAttributes.Public | MemberAttributes.Const,
+                InitExpression = new CodePrimitiveExpression(schema.Size)
+            };
+            classDeclaration.Members.Add(sizeConst);
+
+            // Добавляем поле фиксированного размера
+            var field = new CodeMemberField(
+                new CodeTypeReference(typeof(byte[])),
+                "Value")
+            {
+                Attributes = MemberAttributes.Public
+            };
+
+            // Добавляем инициализацию в конструкторе
+            var ctor = new CodeConstructor
+            {
+                Attributes = MemberAttributes.Public
+            };
+            ctor.Statements.Add(
+                new CodeAssignStatement(
+                    new CodeFieldReferenceExpression(
+                        new CodeThisReferenceExpression(),
+                        "Value"),
+                    new CodeArrayCreateExpression(
+                        typeof(byte),
+                        new CodeFieldReferenceExpression(null, "SIZE"))));
+
+            classDeclaration.Members.Add(field);
+            classDeclaration.Members.Add(ctor);
+
+            codeNamespace.Types.Add(classDeclaration);
+            _compileUnits[$"{className}.cs"] = codeUnit;
+        }
+
+        private string GetClassName(Schema schema)
+        {
+            string fullName = schema.Name;
+
+            if (schema is RecordSchema recordSchema)
+            {
+                fullName = recordSchema.Name;
+            }
+            else if (schema is EnumSchema enumSchema)
+            {
+                fullName = enumSchema.Name;
+            }
+            else if (schema is FixedSchema fixedSchema)
+            {
+                fullName = fixedSchema.Name;
+            }
+
+            var lastDot = fullName.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                return fullName.Substring(lastDot + 1);
+            }
+            return fullName ?? "GeneratedClass";
+        }
+
+        private string GetNamespace(Schema schema)
+        {
+            string? fullName = null;
+            string? defaultNamespace = null;
+
+            if (schema is RecordSchema recordSchema)
+            {
+                fullName = recordSchema.Name;
+                defaultNamespace = recordSchema.Namespace;
+            }
+            else if (schema is EnumSchema enumSchema)
+            {
+                fullName = enumSchema.Name;
+                defaultNamespace = enumSchema.Namespace;
+            }
+            else if (schema is FixedSchema fixedSchema)
+            {
+                fullName = fixedSchema.Name;
+                defaultNamespace = fixedSchema.Namespace;
+            }
+
+            if (fullName != null)
+            {
+                var lastDot = fullName.LastIndexOf('.');
+                if (lastDot > 0)
                 {
-                    Name = field.Name,
-                    Type = GetCodeTypeReference(field.Schema),
-                    Attributes = MemberAttributes.Public
+                    return fullName.Substring(0, lastDot);
+                }
+            }
+
+            return defaultNamespace ?? "Generated";
+        }
+
+        private CodeTypeReference GetCodeTypeReference(Schema schema)
+        {
+            if (schema is LogicalSchema logicalSchema)
+            {
+                var logicalType = logicalSchema.LogicalType.ToString().ToLowerInvariant();
+                return logicalType switch
+                {
+                    "timestamp-millis" => new CodeTypeReference(typeof(DateTime)),
+                    "timestamp-micros" => new CodeTypeReference(typeof(DateTime)),
+                    "time-millis" => new CodeTypeReference(typeof(TimeSpan)),
+                    "time-micros" => new CodeTypeReference(typeof(TimeSpan)),
+                    "date" => new CodeTypeReference(typeof(DateTime)),
+                    "decimal" => new CodeTypeReference(typeof(decimal)),
+                    "uuid" => new CodeTypeReference(typeof(Guid)),
+                    "duration" => new CodeTypeReference(typeof(TimeSpan)),
+                    _ => GetCodeTypeReference(logicalSchema.BaseSchema)
                 };
-                codeClass.Members.Add(codeField);
             }
 
-            // Добавляем методы сериализации
-            AddSerializationMethods(codeClass);
-
-            codeNamespace.Types.Add(codeClass);
-
-            // Рекурсивно обрабатываем вложенные типы
-            foreach (var field in recordSchema.Fields)
+            return schema.Tag switch
             {
-                if (field.Schema is ArraySchema arraySchema && arraySchema.ItemSchema is RecordSchema)
+                Schema.Type.Null => new CodeTypeReference(typeof(object)),
+                Schema.Type.String => new CodeTypeReference(typeof(string)),
+                Schema.Type.Int => new CodeTypeReference(typeof(int)),
+                Schema.Type.Long => new CodeTypeReference(typeof(long)),
+                Schema.Type.Float => new CodeTypeReference(typeof(float)),
+                Schema.Type.Double => new CodeTypeReference(typeof(double)),
+                Schema.Type.Boolean => new CodeTypeReference(typeof(bool)),
+                Schema.Type.Bytes => new CodeTypeReference(typeof(byte[])),
+                Schema.Type.Fixed => new CodeTypeReference(GetClassName(schema)),
+                Schema.Type.Array => new CodeTypeReference(
+                    typeof(List<>).FullName,
+                    GetCodeTypeReference(((ArraySchema)schema).ItemSchema)),
+                Schema.Type.Map => new CodeTypeReference(
+                    typeof(Dictionary<,>).FullName,
+                    new CodeTypeReference(typeof(string)),
+                    GetCodeTypeReference(((MapSchema)schema).ValueSchema)),
+                Schema.Type.Record => new CodeTypeReference(GetClassName(schema)),
+                Schema.Type.Enumeration => new CodeTypeReference(GetClassName(schema)),
+                Schema.Type.Union => GetCodeTypeReferenceForUnion(schema),
+                Schema.Type.Logical => GetCodeTypeReference(((LogicalSchema)schema).BaseSchema),
+                _ => throw new NotSupportedException($"Тип схемы {schema.Tag} не поддерживается")
+            };
+        }
+
+        private CodeTypeReference GetCodeTypeReferenceForUnion(Schema schema)
+        {
+            var unionSchema = (UnionSchema)schema;
+            var nullableType = unionSchema.Schemas.FirstOrDefault(s => s.Tag != Schema.Type.Null);
+
+            if (nullableType != null)
+            {
+                var typeReference = GetCodeTypeReference(nullableType);
+                if (typeReference.BaseType == "System.String")
                 {
-                    GenerateRecordClasses(arraySchema.ItemSchema, codeNamespace);
+                    return typeReference;
                 }
-                else if (field.Schema is RecordSchema nestedRecordSchema)
-                {
-                    GenerateRecordClasses(field.Schema, codeNamespace);
-                }
+                return new CodeTypeReference(typeof(Nullable<>).FullName,
+                    new[] { typeReference });
             }
+
+            throw new NotSupportedException("Объединение должно содержать не-null тип");
         }
-    }
-
-    private void AddSerializationMethods(CodeTypeDeclaration codeClass)
-    {
-        // Write метод
-        var writeMethod = new CodeMemberMethod
-        {
-            Name = "Write",
-            Attributes = MemberAttributes.Public | MemberAttributes.Final,
-            ReturnType = new CodeTypeReference(typeof(void))
-        };
-        writeMethod.Parameters.Add(new CodeParameterDeclarationExpression("Encoder", "encoder"));
-        codeClass.Members.Add(writeMethod);
-
-        // Read метод
-        var readMethod = new CodeMemberMethod
-        {
-            Name = "Read",
-            Attributes = MemberAttributes.Public | MemberAttributes.Final,
-            ReturnType = new CodeTypeReference(typeof(void))
-        };
-        readMethod.Parameters.Add(new CodeParameterDeclarationExpression("Decoder", "decoder"));
-        codeClass.Members.Add(readMethod);
-    }
-
-    private CodeTypeReference GetCodeTypeReference(Schema schema)
-    {
-        return schema.Tag switch
-        {
-            Schema.Type.String => new CodeTypeReference(typeof(string)),
-            Schema.Type.Int => new CodeTypeReference(typeof(int)),
-            Schema.Type.Long => new CodeTypeReference(typeof(long)),
-            Schema.Type.Float => new CodeTypeReference(typeof(float)),
-            Schema.Type.Double => new CodeTypeReference(typeof(double)),
-            Schema.Type.Boolean => new CodeTypeReference(typeof(bool)),
-            Schema.Type.Array => new CodeTypeReference(
-                typeof(System.Collections.Generic.List<>).FullName,
-                new[] { GetCodeTypeReference(((ArraySchema)schema).ItemSchema) }
-            ),
-            Schema.Type.Record => new CodeTypeReference(GetClassName(schema)),
-            Schema.Type.Union => GetCodeTypeReferenceForUnion(schema),
-            _ => throw new NotSupportedException($"Schema type {schema.Tag} is not supported")
-        };
-    }
-
-    private CodeTypeReference GetCodeTypeReferenceForUnion(Schema schema)
-    {
-        var unionSchema = (UnionSchema)schema;
-        if (unionSchema.Count == 2 && unionSchema[0].Tag == Schema.Type.Null)
-        {
-            var valueType = GetCodeTypeReference(unionSchema[1]);
-            return new CodeTypeReference(typeof(Nullable<>).Name, new[] { valueType });
-        }
-        throw new NotSupportedException("Only nullable unions are supported");
     }
 }

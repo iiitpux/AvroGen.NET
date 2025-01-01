@@ -17,6 +17,7 @@ namespace AvroGen.NET
     {
         private readonly SchemaGeneratorConfig _config;
         private readonly ISchemaRegistryClient _schemaRegistryClient;
+        private readonly AvroCodeGenerator _codeGenerator;
 
         /// <summary>
         /// Создает новый экземпляр генератора схем.
@@ -36,6 +37,7 @@ namespace AvroGen.NET
         {
             _config = config;
             _schemaRegistryClient = schemaRegistryClient;
+            _codeGenerator = new AvroCodeGenerator();
         }
 
         /// <summary>
@@ -48,40 +50,23 @@ namespace AvroGen.NET
                 ? await _schemaRegistryClient.GetRegisteredSchemaAsync(_config.Subject, _config.Version.Value)
                 : await _schemaRegistryClient.GetLatestSchemaAsync(_config.Subject);
 
-            // Парсим схему и генерируем код
-            var generator = new CodeGen();
-            if (!string.IsNullOrEmpty(_config.Namespace))
+            // Создаем директорию для сгенерированных файлов, если её нет
+            if (!Directory.Exists(_config.OutputDirectory))
             {
-                generator.AddSchema(registeredSchema.SchemaString, new Dictionary<string, string> 
-                { 
-                    { "namespace", _config.Namespace } 
-                });
-            }
-            else
-            {
-                generator.AddSchema(registeredSchema.SchemaString);
+                Directory.CreateDirectory(_config.OutputDirectory);
             }
 
-            var code = generator.GenerateCode();
-
-            // Создаем выходной каталог, если он не существует
-            Directory.CreateDirectory(_config.OutputDirectory);
-
-            // Определяем имя файла
+            // Парсим схему
             var schema = Avro.Schema.Parse(registeredSchema.SchemaString);
-            var fileName = $"{schema.Name}.cs";
-            var filePath = Path.Combine(_config.OutputDirectory, fileName);
 
-            // Сохраняем сгенерированный код
-            using (var provider = new CSharpCodeProvider())
-            using (var writer = new StreamWriter(filePath))
+            // Генерируем код для каждого класса в отдельный файл
+            var generatedFiles = _codeGenerator.GenerateCode(schema, _config.Namespace);
+
+            // Сохраняем каждый класс в отдельный файл
+            foreach (var file in generatedFiles)
             {
-                var options = new CodeGeneratorOptions
-                {
-                    BracingStyle = "C"
-                };
-
-                provider.GenerateCodeFromCompileUnit(code, writer, options);
+                var filePath = Path.Combine(_config.OutputDirectory, file.Key);
+                await File.WriteAllTextAsync(filePath, file.Value);
             }
         }
     }
