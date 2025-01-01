@@ -8,7 +8,7 @@ using Confluent.SchemaRegistry;
 namespace AvroGen.NET.UnitTests;
 
 /// <summary>
-/// Модульные тесты для класса GenerateAvroClassesTask
+/// Unit tests for GenerateAvroClassesTask class
 /// </summary>
 public class GenerateAvroClassesTaskTests
 {
@@ -36,7 +36,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет валидацию обязательных параметров
+    /// Tests validation of required parameters
     /// </summary>
     [Fact]
     public void Execute_MissingSchemas_ReturnsFalse()
@@ -54,7 +54,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет успешное выполнение задачи с корректными параметрами
+    /// Tests successful task execution with valid parameters
     /// </summary>
     [Fact]
     public void Execute_WithValidParameters_ReturnsTrue()
@@ -95,7 +95,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет обработку отсутствующего URL схема-реестра
+    /// Tests handling of missing schema registry URL
     /// </summary>
     [Fact]
     public void Execute_MissingSchemaRegistryUrl_ReturnsFalse()
@@ -118,7 +118,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет обработку отсутствующего Subject
+    /// Tests handling of missing subject
     /// </summary>
     [Fact]
     public void Execute_MissingSubject_ReturnsFalse()
@@ -141,7 +141,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет обработку отсутствующей выходной директории
+    /// Tests handling of missing output directory
     /// </summary>
     [Fact]
     public void Execute_MissingOutputDirectory_ReturnsFalse()
@@ -164,7 +164,7 @@ public class GenerateAvroClassesTaskTests
     }
 
     /// <summary>
-    /// Проверяет создание директории вывода, если она не существует
+    /// Tests creation of output directory if it does not exist
     /// </summary>
     [Fact]
     public void Execute_CreatesOutputDirectory_IfNotExists()

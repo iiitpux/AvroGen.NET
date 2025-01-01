@@ -51,7 +51,7 @@ namespace AvroGen.NET
 
                 if (Schemas == null || Schemas.Length == 0)
                 {
-                    Log.LogError("Не указаны схемы для обработки");
+                    Log.LogError("No schemas specified for processing");
                     return false;
                 }
 
@@ -63,19 +63,19 @@ namespace AvroGen.NET
 
                     if (string.IsNullOrEmpty(schemaRegistryUrl))
                     {
-                        Log.LogError("Требуется указать SchemaRegistryUrl");
+                        Log.LogError("SchemaRegistryUrl is required");
                         return false;
                     }
 
                     if (string.IsNullOrEmpty(subject))
                     {
-                        Log.LogError("Требуется указать Subject");
+                        Log.LogError("Subject is required");
                         return false;
                     }
 
                     if (string.IsNullOrEmpty(outputDirectory))
                     {
-                        Log.LogError("Требуется указать OutputDirectory");
+                        Log.LogError("OutputDirectory is required");
                         return false;
                     }
 

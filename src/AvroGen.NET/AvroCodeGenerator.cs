@@ -11,7 +11,7 @@ using Avro.Util;
 namespace AvroGen.NET
 {
     /// <summary>
-    /// Генератор кода для преобразования Avro схем в C# классы.
+    /// Code generator for converting Avro schemas to C# classes.
     /// </summary>
     public class AvroCodeGenerator
     {
@@ -19,20 +19,23 @@ namespace AvroGen.NET
         private readonly HashSet<string> _processedTypes = new();
 
         /// <summary>
-        /// Генерирует C# код из Avro схемы.
+        /// Generates C# code from an Avro schema.
         /// </summary>
-        /// <param name="schema">Avro схема</param>
-        /// <param name="namespace">Пространство имен для сгенерированных классов</param>
-        /// <returns>Словарь, где ключ - имя файла, значение - сгенерированный код</returns>
+        /// <param name="schema">Avro schema</param>
+        /// <param name="namespace">Namespace for generated classes</param>
+        /// <returns>Dictionary where key is filename and value is generated code</returns>
         public Dictionary<string, string> GenerateCode(Schema schema, string? @namespace = null)
         {
             if (schema == null)
                 throw new ArgumentNullException(nameof(schema));
 
+            if (!(schema is RecordSchema))
+                throw new ArgumentException("Schema must be of type record", nameof(schema));
+
             _compileUnits.Clear();
             _processedTypes.Clear();
 
-            // Обрабатываем схему
+            // Process schema
             ProcessSchema(schema, @namespace ?? GetNamespace(schema));
 
             var result = new Dictionary<string, string>();
@@ -101,7 +104,7 @@ namespace AvroGen.NET
                 TypeAttributes = System.Reflection.TypeAttributes.Public
             };
 
-            // Добавляем значения перечисления
+            // Add enum values
             foreach (var symbol in schema.Symbols)
             {
                 var field = new CodeMemberField(typeof(int), symbol);
@@ -128,7 +131,7 @@ namespace AvroGen.NET
                 var codeUnit = new CodeCompileUnit();
                 codeUnit.Namespaces.Add(codeNamespace);
 
-                // Добавляем необходимые импорты
+                // Add required imports
                 codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
                 codeNamespace.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
                 codeNamespace.Imports.Add(new CodeNamespaceImport("Avro"));
@@ -140,10 +143,10 @@ namespace AvroGen.NET
                     TypeAttributes = System.Reflection.TypeAttributes.Public
                 };
 
-                // Добавляем интерфейс ISpecificRecord
+                // Add ISpecificRecord interface
                 codeType.BaseTypes.Add(new CodeTypeReference(typeof(ISpecificRecord)));
 
-                // Добавляем поле для схемы
+                // Add schema field
                 var schemaField = new CodeMemberField(typeof(Schema), "_SCHEMA")
                 {
                     Attributes = MemberAttributes.Private | MemberAttributes.Static | MemberAttributes.Final
@@ -151,7 +154,7 @@ namespace AvroGen.NET
                 schemaField.InitExpression = new CodeSnippetExpression($"Schema.Parse(\"{schema.ToString().Replace("\"", "\\\"")}\")");;
                 codeType.Members.Add(schemaField);
 
-                // Добавляем свойство Schema
+                // Add Schema property
                 var schemaProp = new CodeMemberProperty
                 {
                     Name = "Schema",
@@ -162,7 +165,7 @@ namespace AvroGen.NET
                     new CodeFieldReferenceExpression(null, "_SCHEMA")));
                 codeType.Members.Add(schemaProp);
 
-                // Добавляем метод Get
+                // Add Get method
                 var getMethod = new CodeMemberMethod
                 {
                     Name = "Get",
@@ -175,9 +178,9 @@ namespace AvroGen.NET
                 CodeStatement currentStatement = new CodeThrowExceptionStatement(
                     new CodeObjectCreateExpression(
                         typeof(AvroRuntimeException),
-                        new CodePrimitiveExpression("Недопустимая позиция поля")));
+                        new CodePrimitiveExpression("Invalid field position")));
 
-                // Строим цепочку if-else с конца
+                // Build if-else chain from end
                 for (int i = recordSchema.Fields.Count - 1; i >= 0; i--)
                 {
                     var field = recordSchema.Fields[i];
@@ -199,7 +202,7 @@ namespace AvroGen.NET
                 getMethod.Statements.Add(currentStatement);
                 codeType.Members.Add(getMethod);
 
-                // Добавляем метод Put
+                // Add Put method
                 var putMethod = new CodeMemberMethod
                 {
                     Name = "Put",
@@ -213,9 +216,9 @@ namespace AvroGen.NET
                 CodeStatement currentPutStatement = new CodeThrowExceptionStatement(
                     new CodeObjectCreateExpression(
                         typeof(AvroRuntimeException),
-                        new CodePrimitiveExpression("Недопустимая позиция поля")));
+                        new CodePrimitiveExpression("Invalid field position")));
 
-                // Строим цепочку if-else с конца
+                // Build if-else chain from end
                 for (int i = recordSchema.Fields.Count - 1; i >= 0; i--)
                 {
                     var field = recordSchema.Fields[i];
@@ -241,39 +244,38 @@ namespace AvroGen.NET
                 putMethod.Statements.Add(currentPutStatement);
                 codeType.Members.Add(putMethod);
 
-                // Добавляем поля и свойства
+                // Add fields and properties
                 foreach (var field in recordSchema.Fields)
                 {
-                    var fieldType = GetCodeTypeReference(field.Schema);
-                    
-                    // Рекурсивно обрабатываем вложенные типы
-                    ProcessSchema(field.Schema, @namespace);
-
-                    // Создаем приватное поле
-                    var fieldName = $"_{field.Name}";
-                    var privateField = new CodeMemberField(fieldType, fieldName);
-                    codeType.Members.Add(privateField);
-
-                    // Создаем публичное свойство
+                    var propertyType = GetCodeTypeReference(field.Schema);
                     var property = new CodeMemberProperty
                     {
                         Name = field.Name,
-                        Type = fieldType,
+                        Type = propertyType,
                         Attributes = MemberAttributes.Public | MemberAttributes.Final
+                    };
+
+                    var backingField = new CodeMemberField(propertyType, $"_{field.Name}")
+                    {
+                        Attributes = MemberAttributes.Private
                     };
 
                     property.GetStatements.Add(new CodeMethodReturnStatement(
                         new CodeFieldReferenceExpression(
                             new CodeThisReferenceExpression(),
-                            fieldName)));
+                            backingField.Name)));
 
                     property.SetStatements.Add(new CodeAssignStatement(
                         new CodeFieldReferenceExpression(
                             new CodeThisReferenceExpression(),
-                            fieldName),
+                            backingField.Name),
                         new CodePropertySetValueReferenceExpression()));
 
+                    codeType.Members.Add(backingField);
                     codeType.Members.Add(property);
+
+                    // Process nested types
+                    ProcessSchema(field.Schema, @namespace);
                 }
 
                 codeNamespace.Types.Add(codeType);
@@ -295,7 +297,7 @@ namespace AvroGen.NET
             var codeUnit = new CodeCompileUnit();
             codeUnit.Namespaces.Add(codeNamespace);
 
-            // Добавляем необходимые импорты
+            // Add required imports
             codeNamespace.Imports.Add(new CodeNamespaceImport("System"));
             codeNamespace.Imports.Add(new CodeNamespaceImport("System.Runtime.InteropServices"));
 
@@ -305,7 +307,7 @@ namespace AvroGen.NET
                 TypeAttributes = System.Reflection.TypeAttributes.Public
             };
 
-            // Добавляем атрибут StructLayout для фиксированного размера
+            // Add StructLayout attribute for fixed size
             var structLayoutAttribute = new CodeAttributeDeclaration(
                 new CodeTypeReference(typeof(StructLayoutAttribute)),
                 new CodeAttributeArgument(
@@ -314,7 +316,7 @@ namespace AvroGen.NET
                         "Sequential")));
             classDeclaration.CustomAttributes.Add(structLayoutAttribute);
 
-            // Добавляем константу размера
+            // Add size constant
             var sizeConst = new CodeMemberField(typeof(int), "SIZE")
             {
                 Attributes = MemberAttributes.Public | MemberAttributes.Const,
@@ -322,7 +324,7 @@ namespace AvroGen.NET
             };
             classDeclaration.Members.Add(sizeConst);
 
-            // Добавляем поле фиксированного размера
+            // Add fixed size field
             var field = new CodeMemberField(
                 new CodeTypeReference(typeof(byte[])),
                 "Value")
@@ -330,7 +332,7 @@ namespace AvroGen.NET
                 Attributes = MemberAttributes.Public
             };
 
-            // Добавляем инициализацию в конструкторе
+            // Add initialization in constructor
             var ctor = new CodeConstructor
             {
                 Attributes = MemberAttributes.Public
@@ -413,7 +415,7 @@ namespace AvroGen.NET
         {
             if (schema is LogicalSchema logicalSchema)
             {
-                var logicalType = logicalSchema.LogicalType.ToString().ToLowerInvariant();
+                var logicalType = logicalSchema.LogicalType.Name.ToLowerInvariant();
                 return logicalType switch
                 {
                     "timestamp-millis" => new CodeTypeReference(typeof(DateTime)),
@@ -450,7 +452,7 @@ namespace AvroGen.NET
                 Schema.Type.Enumeration => new CodeTypeReference(GetClassName(schema)),
                 Schema.Type.Union => GetCodeTypeReferenceForUnion(schema),
                 Schema.Type.Logical => GetCodeTypeReference(((LogicalSchema)schema).BaseSchema),
-                _ => throw new NotSupportedException($"Тип схемы {schema.Tag} не поддерживается")
+                _ => throw new NotSupportedException($"Schema type {schema.Tag} is not supported")
             };
         }
 
@@ -470,7 +472,7 @@ namespace AvroGen.NET
                     new[] { typeReference });
             }
 
-            throw new NotSupportedException("Объединение должно содержать не-null тип");
+            throw new NotSupportedException("Union must contain a non-null type");
         }
     }
 }
