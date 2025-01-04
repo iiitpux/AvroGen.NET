@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace AvroGen.NET
 {
@@ -17,7 +18,6 @@ namespace AvroGen.NET
     {
         private readonly SchemaGeneratorConfig _config;
         private readonly ISchemaRegistryClient _schemaRegistryClient;
-        private readonly AvroCodeGenerator _codeGenerator;
 
         /// <summary>
         /// Создает новый экземпляр генератора схем.
@@ -37,7 +37,6 @@ namespace AvroGen.NET
         {
             _config = config;
             _schemaRegistryClient = schemaRegistryClient;
-            _codeGenerator = new AvroCodeGenerator();
         }
 
         /// <summary>
@@ -57,17 +56,41 @@ namespace AvroGen.NET
             }
 
             // Парсим схему
-            var schema = Avro.Schema.Parse(registeredSchema.SchemaString);
 
             // Генерируем код для каждого класса в отдельный файл
-            var generatedFiles = _codeGenerator.GenerateCode(schema, _config.Namespace);
+            // var generatedFiles = _codeGenerator.GenerateCode(schema, _config.Namespace);
 
-            // Сохраняем каждый класс в отдельный файл
-            foreach (var file in generatedFiles)
+            var schemaString = registeredSchema.SchemaString;
+
+            if (schemaString == null)
             {
-                var filePath = Path.Combine(_config.OutputDirectory, file.Key);
-                await File.WriteAllTextAsync(filePath, file.Value);
+                // Схема не нашлась в реестре
+                throw new Exception("Schema not found in registry");
             }
+
+            JObject schemaObject = JObject.Parse(schemaString);
+
+// Получаем namespace
+            string schemaNamespace = schemaObject["namespace"]?.ToString();
+
+            var namespaceMapping = new Dictionary<string, string>();
+
+// Теперь можно использовать schemaNamespace при необходимости
+// Например, добавить его в namespaceMapping, если его там еще нет
+
+            if (!namespaceMapping.Any(kvp => kvp.Key == schemaNamespace) && !string.IsNullOrEmpty(_config.Namespace))
+            {
+                // Добавляем маппинг, если его нет
+                // Здесь вы можете задать правило для преобразования Avro namespace в C# namespace;
+                namespaceMapping.Add(schemaNamespace, _config.Namespace);
+            }
+
+
+            var codegen = new CodeGen();
+            codegen.AddSchema(schemaString, namespaceMapping);
+
+            codegen.GenerateCode();
+            codegen.WriteTypes(_config.OutputDirectory);
         }
     }
 }
