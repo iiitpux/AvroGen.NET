@@ -72,6 +72,10 @@ namespace AvroGen.NET
 
 // Получаем namespace
             string schemaNamespace = schemaObject["namespace"]?.ToString();
+            if (schemaNamespace == null)
+            {
+                //todo-
+            }
 
             var namespaceMapping = new Dictionary<string, string>();
 
