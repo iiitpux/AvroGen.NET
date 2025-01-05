@@ -49,52 +49,33 @@ namespace AvroGen.NET
                 ? await _schemaRegistryClient.GetRegisteredSchemaAsync(_config.Subject, _config.Version.Value)
                 : await _schemaRegistryClient.GetLatestSchemaAsync(_config.Subject);
 
+            if (string.IsNullOrEmpty(registeredSchema?.SchemaString))
+            {
+                throw new Exception("Schema not found in registry");
+            }
+
             // Создаем директорию для сгенерированных файлов, если её нет
             if (!Directory.Exists(_config.OutputDirectory))
             {
                 Directory.CreateDirectory(_config.OutputDirectory);
             }
 
-            // Парсим схему
-
-            // Генерируем код для каждого класса в отдельный файл
-            // var generatedFiles = _codeGenerator.GenerateCode(schema, _config.Namespace);
-
-            var schemaString = registeredSchema.SchemaString;
-
-            if (schemaString == null)
-            {
-                // Схема не нашлась в реестре
-                throw new Exception("Schema not found in registry");
-            }
-
-            JObject schemaObject = JObject.Parse(schemaString);
-
-// Получаем namespace
+            var schemaObject = JObject.Parse(registeredSchema.SchemaString);
             string schemaNamespace = schemaObject["namespace"]?.ToString();
-            if (schemaNamespace == null)
-            {
-                //todo-
-            }
 
             var namespaceMapping = new Dictionary<string, string>();
-
-// Теперь можно использовать schemaNamespace при необходимости
-// Например, добавить его в namespaceMapping, если его там еще нет
-
-            if (!namespaceMapping.Any(kvp => kvp.Key == schemaNamespace) && !string.IsNullOrEmpty(_config.Namespace))
+            if (!string.IsNullOrEmpty(schemaNamespace) && !string.IsNullOrEmpty(_config.Namespace))
             {
-                // Добавляем маппинг, если его нет
-                // Здесь вы можете задать правило для преобразования Avro namespace в C# namespace;
                 namespaceMapping.Add(schemaNamespace, _config.Namespace);
             }
 
+            // Используем VersionedCodeGen вместо CodeGen
+            var codegen = new VersionedCodeGen(registeredSchema.Version);
+            codegen.AddSchema(registeredSchema.SchemaString, namespaceMapping);
 
-            var codegen = new CodeGen();
-            codegen.AddSchema(schemaString, namespaceMapping);
-
+            // Генерируем код
             codegen.GenerateCode();
-            codegen.WriteTypes(_config.OutputDirectory);
+            codegen.WriteTypes(_config.OutputDirectory, true);//todo- _config.SkipDirectories);
         }
     }
 }
