@@ -21,6 +21,7 @@ using Avro.Specific;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using Microsoft.CSharp;
 
 namespace AvroGen.NET
 {
@@ -71,24 +72,45 @@ public class SchemaVersionAttribute : Attribute
             {
                 File.WriteAllText(attributeFile, attributeCode);
             }
+            var cscp = new CSharpCodeProvider();
 
-            // Для каждого типа в CompileUnit
-            foreach (CodeNamespace ns in CompileUnit.Namespaces)
+            var opts = new CodeGeneratorOptions();
+            opts.BracingStyle = "C";
+            opts.IndentString = "\t";
+            opts.BlankLinesBetweenMembers = false;
+
+            CodeNamespaceCollection nsc = CompileUnit.Namespaces;
+            for (int i = 0; i < nsc.Count; i++)
             {
-                string targetDirectory = outputDirectory;
-                if (!skipDirectories && !string.IsNullOrEmpty(ns.Name))
+                var ns = nsc[i];
+
+                string dir = outputDirectory;
+                if (skipDirectories != true)
                 {
-                    // Создаем поддиректории для namespace только если не установлен флаг skipDirectories
-                    targetDirectory = Path.Combine(outputDirectory, ns.Name.Replace('.', Path.DirectorySeparatorChar));
-                    Directory.CreateDirectory(targetDirectory);
+                    foreach (string name in CodeGenUtil.Instance.UnMangle(ns.Name).Split('.'))
+                    {
+                        dir = Path.Combine(dir, name);
+                    }
+                }
+                Directory.CreateDirectory(dir);
+
+                var newNs = new CodeNamespace(ns.Name);
+                newNs.Comments.Add(CodeGenUtil.Instance.FileComment);
+                
+                foreach (CodeNamespaceImport nci in CodeGenUtil.Instance.NamespaceImports)
+                {
+                    newNs.Imports.Add(nci);
                 }
 
-                foreach (CodeTypeDeclaration type in ns.Types)
+                var types = ns.Types;
+                for (int j = 0; j < types.Count; j++)
                 {
+                    var ctd = types[j];
+                    
                     // Добавляем атрибут версии схемы
-                    if (type.IsClass && !type.Name.Equals("SchemaVersionAttribute"))
+                    if (ctd.IsClass && !ctd.Name.Equals("SchemaVersionAttribute"))
                     {
-                        type.CustomAttributes.Add(
+                        ctd.CustomAttributes.Add(
                             new CodeAttributeDeclaration(
                                 new CodeTypeReference("SchemaVersion"),
                                 new CodeAttributeArgument[] {
@@ -99,27 +121,13 @@ public class SchemaVersionAttribute : Attribute
                             )
                         );
                     }
-
-                    // Генерируем код с атрибутом
-                    using (var writer = new StreamWriter(Path.Combine(targetDirectory, type.Name + ".cs")))
+                    
+                    string file = Path.Combine(dir, Path.ChangeExtension(CodeGenUtil.Instance.UnMangle(ctd.Name), "cs"));
+                    using (var writer = new StreamWriter(file, false))
                     {
-                        var provider = new Microsoft.CSharp.CSharpCodeProvider();
-                        var options = new CodeGeneratorOptions
-                        {
-                            BracingStyle = "C",
-                            BlankLinesBetweenMembers = true
-                        };
-
-                        var unit = new CodeCompileUnit();
-                        var newNs = new CodeNamespace(ns.Name);
-                        // Добавляем необходимые using'и
-                        newNs.Imports.Add(new CodeNamespaceImport("System"));
-                        newNs.Imports.Add(new CodeNamespaceImport("Avro.Specific"));
-                        
-                        newNs.Types.Add(type);
-                        unit.Namespaces.Add(newNs);
-
-                        provider.GenerateCodeFromCompileUnit(unit, writer, options);
+                        newNs.Types.Add(ctd);
+                        cscp.GenerateCodeFromNamespace(newNs, writer, opts);
+                        newNs.Types.Remove(ctd);
                     }
                 }
             }
