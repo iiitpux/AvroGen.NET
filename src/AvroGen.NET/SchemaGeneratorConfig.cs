@@ -29,5 +29,10 @@ namespace AvroGen.NET
         /// Gets or sets the namespace for generated classes.
         /// </summary>
         public string? Namespace { get; set; }
+
+        /// <summary>
+        /// Создавать ли структуру директорий по пространствам имен.
+        /// </summary>
+        public bool CreateDirectoryStructure { get; set; } = true;
     }
 }

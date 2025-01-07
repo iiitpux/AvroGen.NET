@@ -54,11 +54,12 @@ namespace AvroGen.NET
                 throw new Exception("Schema not found in registry");
             }
 
-            // Создаем директорию для сгенерированных файлов, если её нет
-            if (!Directory.Exists(_config.OutputDirectory))
+            // Удаляем директорию перед генерацией файлов
+            if (Directory.Exists(_config.OutputDirectory))
             {
-                Directory.CreateDirectory(_config.OutputDirectory);
+                Directory.Delete(_config.OutputDirectory, true);
             }
+            Directory.CreateDirectory(_config.OutputDirectory);
 
             var schemaObject = JObject.Parse(registeredSchema.SchemaString);
             string schemaNamespace = schemaObject["namespace"]?.ToString();
@@ -75,7 +76,7 @@ namespace AvroGen.NET
 
             // Генерируем код
             codegen.GenerateCode();
-            codegen.WriteTypes(_config.OutputDirectory, true);//todo- _config.SkipDirectories);
+            codegen.WriteTypes(_config.OutputDirectory, !_config.CreateDirectoryStructure);
         }
     }
 }
