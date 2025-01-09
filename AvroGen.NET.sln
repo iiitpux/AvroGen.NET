@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{22222222-2222-2222-2222-222222222222}"
 	ProjectSection(SolutionItems) = preProject
-		schemas\test-schema.avsc = schemas\test-schema.avsc
+		test-schema.avsc = test-schema.avsc
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvroGen.NET.Example", "examples\AvroGen.NET.Example\AvroGen.NET.Example.csproj", "{E284957E-5ADE-4F85-903E-B9E726797A9C}"

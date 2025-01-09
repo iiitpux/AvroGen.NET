@@ -1,32 +1,33 @@
 namespace AvroGen.NET
 {
     /// <summary>
-    /// Configuration for the schema generator.
+    /// Конфигурация генератора схем.
     /// </summary>
     public class SchemaGeneratorConfig
     {
         /// <summary>
-        /// Gets or sets the URL of the Schema Registry.
+        /// Получает или устанавливает URL Schema Registry.
         /// </summary>
         public required string SchemaRegistryUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the schema subject name in Schema Registry.
+        /// Получает или устанавливает имя субъекта схемы в Schema Registry.
         /// </summary>
         public required string Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the schema version in Schema Registry. If not specified, latest version will be used.
+        /// Получает или устанавливает версию схемы в Schema Registry. 
+        /// Если не указано, будет использована последняя версия.
         /// </summary>
         public int? Version { get; set; }
 
         /// <summary>
-        /// Gets or sets the output directory for generated classes.
+        /// Получает или устанавливает директорию для сгенерированных классов.
         /// </summary>
         public required string OutputDirectory { get; set; }
 
         /// <summary>
-        /// Gets or sets the namespace for generated classes.
+        /// Получает или устанавливает пространство имен для сгенерированных классов.
         /// </summary>
         public string? Namespace { get; set; }
 

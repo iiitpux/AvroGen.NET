@@ -54,9 +54,20 @@ namespace AvroGen.NET
                 throw new Exception("Schema not found in registry");
             }
 
-            // Удаляем директорию перед генерацией файлов
-            if (Directory.Exists(_config.OutputDirectory))
+            // Проверяем, существуют ли файлы и их версии
+            if (GeneratedFileVersionChecker.CheckDirectoryVersion(_config.OutputDirectory, registeredSchema.Version))
             {
+                // Файлы уже существуют и имеют нужную версию
+                return;
+            }
+
+            //todo- не удалять папку, могут быть другие схемы, которые не надо пересоздавать
+            // Выводим содержимое выходной директории перед удалением
+            if (Directory.Exists(_config.OutputDirectory)) {
+                // Удаляем все файлы в выходной директории
+                // foreach (var file in Directory.GetFiles(_config.OutputDirectory)) {
+                //     File.Delete(file);
+                // }
                 Directory.Delete(_config.OutputDirectory, true);
             }
             Directory.CreateDirectory(_config.OutputDirectory);

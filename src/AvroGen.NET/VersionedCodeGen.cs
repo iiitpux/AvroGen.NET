@@ -47,34 +47,27 @@ namespace AvroGen.NET
                     foreach (string name in CodeGenUtil.Instance.UnMangle(ns.Name).Split('.'))
                     {
                         dir = Path.Combine(dir, name);
-                        Directory.CreateDirectory(dir);
+                        if (!Directory.Exists(dir))
+                        {
+                            Directory.CreateDirectory(dir);
+                        }
                     }
                 }
 
-                var newNs = new CodeNamespace(ns.Name);
-                newNs.Comments.Add(CodeGenUtil.Instance.FileComment);
-                
-                foreach (CodeNamespaceImport nci in CodeGenUtil.Instance.NamespaceImports)
+                foreach (CodeTypeDeclaration type in ns.Types)
                 {
-                    newNs.Imports.Add(nci);
-                }
-
-                foreach (CodeTypeDeclaration ctd in ns.Types)
-                {
-                    if (ctd.IsClass)
-                    {
-                        // Добавляем комментарий с версией схемы
-                        ctd.Comments.Add(new CodeCommentStatement($"Schema version: {_schemaVersion}"));
-                    }
+                    string path = Path.Combine(dir, CodeGenUtil.Instance.UnMangle(type.Name) + ".cs");
                     
-                    string fileName = CodeGenUtil.Instance.UnMangle(ctd.Name) + ".cs";
-                    string file = skipDirectories ? Path.Combine(outputDirectory, fileName) : Path.Combine(dir, fileName);
-                    using (var writer = new StreamWriter(file, false))
-                    {
-                        newNs.Types.Add(ctd);
-                        cscp.GenerateCodeFromNamespace(newNs, writer, opts);
-                        newNs.Types.Remove(ctd);
-                    }
+                    // Добавляем комментарий с версией схемы
+                    var versionComment = new CodeCommentStatement($"Generated from Avro schema version: {_schemaVersion}");
+                    type.Comments.Insert(0, versionComment);
+
+                    // Создаем новый пространственный объект для текущего типа
+                    var newNamespace = new CodeNamespace(ns.Name);
+                    newNamespace.Types.Add(type);
+                    
+                    using var writer = new StreamWriter(path);
+                    cscp.GenerateCodeFromNamespace(newNamespace, writer, opts);
                 }
             }
         }

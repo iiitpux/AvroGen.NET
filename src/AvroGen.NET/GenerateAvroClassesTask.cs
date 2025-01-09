@@ -85,7 +85,8 @@ namespace AvroGen.NET
                         Subject = subject,
                         OutputDirectory = outputDirectory,
                         Namespace = schema.GetMetadata("Namespace"),
-                        CreateDirectoryStructure = bool.TryParse(schema.GetMetadata("CreateDirectoryStructure"), out var createDirStruct) ? createDirStruct : true
+                        CreateDirectoryStructure = bool.TryParse(schema.GetMetadata("CreateDirectoryStructure"), 
+                            out var createDirStruct) && createDirStruct
                     };
 
                     if (int.TryParse(schema.GetMetadata("Version"), out var version))

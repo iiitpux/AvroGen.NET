@@ -3,7 +3,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.5.38</Version>
+        <Version>0.5.41</Version>
         <Authors>iiitpux</Authors>
         <Company>iiitpux</Company>
         <Description>A .NET tool for generating C# classes from Avro schemas</Description>
@@ -21,9 +21,9 @@
 
     <ItemGroup>
         <PackageReference Include="Apache.Avro" Version="1.11.3"/>
-        <PackageReference Include="Confluent.SchemaRegistry" Version="2.3.0"/>
-        <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.3.0"/>
-        <PackageReference Include="Confluent.Kafka" Version="2.3.0"/>
+        <PackageReference Include="Confluent.SchemaRegistry" Version="2.4.0"/>
+        <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.4.0"/>
+        <PackageReference Include="Confluent.Kafka" Version="2.4.0"/>
         <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" PrivateAssets="all"/>
         <PackageReference Include="System.CodeDom" Version="8.0.0"/>
