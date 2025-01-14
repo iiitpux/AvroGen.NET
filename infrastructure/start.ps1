@@ -1,12 +1,12 @@
-Write-Host "Starting Kafka infrastructure..."
-docker-compose -f docker-compose.yml up -d
 
-Write-Host "Waiting for services to start..."
-Start-Sleep -Seconds 10
 
 Write-Host "Registering test schema..."
 $schemaPath = Join-Path $PSScriptRoot "..\schemas\test-schema.avsc"
 & $PSScriptRoot\register-schema.ps1 -SchemaFile $schemaPath -Subject "test-schema-value"
+
+Write-Host "Registering task schema..."
+$schemaPath = Join-Path $PSScriptRoot "..\schemas\task-schema.avsc"
+& $PSScriptRoot\register-schema.ps1 -SchemaFile $schemaPath -Subject "task-schema-value"
 
 Write-Host "Infrastructure is ready!"
 Write-Host "Kafka: localhost:9092"

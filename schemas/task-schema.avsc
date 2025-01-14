@@ -1,0 +1,11 @@
+{ 
+  "type": "record", 
+  "name": "Task", 
+  "namespace": "AvroGen.NET.Example.Generated", 
+  "fields": [ 
+    { "name": "id", "type": "int" }, 
+    { "name": "name", "type": "string" }, 
+    { "name": "description", "type": "string" }, 
+    { "name": "completed", "type": "boolean" } 
+  ] 
+}

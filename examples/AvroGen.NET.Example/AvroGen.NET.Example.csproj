@@ -9,7 +9,15 @@
             <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
             <Subject>user-value</Subject>
             <Version>1</Version>
-            <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
+            <OutputDirectory>$(MSBuildProjectDirectory)\Generated\UserValue</OutputDirectory>
+            <Namespace>$(RootNamespace).Generated</Namespace>
+            <CreateDirectoryStructure>false</CreateDirectoryStructure>
+        </AvroSchema>
+        <AvroSchema Include=".">
+            <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
+            <Subject>task-value</Subject>
+            <Version>2</Version>
+            <OutputDirectory>$(MSBuildProjectDirectory)\Generated\TaskValue</OutputDirectory>
             <Namespace>$(RootNamespace).Generated</Namespace>
             <CreateDirectoryStructure>false</CreateDirectoryStructure>
         </AvroSchema>

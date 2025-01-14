@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Confluent.Kafka; // добавлено подключение к Kafka
 
 namespace AvroGen.NET
 {
@@ -54,23 +55,20 @@ namespace AvroGen.NET
                 throw new Exception("Schema not found in registry");
             }
 
+            // Определяем выходную директорию на основе версии схемы
+            string outputDirectory = Path.Combine(_config.OutputDirectory, registeredSchema.Subject + (registeredSchema.Version.HasValue ? "\v" + registeredSchema.Version.Value : ""));
+            // Проверяем, существует ли выходная директория, если нет, создаем
+            if (!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
             // Проверяем, существуют ли файлы и их версии
-            if (GeneratedFileVersionChecker.CheckDirectoryVersion(_config.OutputDirectory, registeredSchema.Version))
+            if (GeneratedFileVersionChecker.CheckDirectoryVersion(outputDirectory, registeredSchema.Version))
             {
                 // Файлы уже существуют и имеют нужную версию
                 return;
             }
-
-            //todo- не удалять папку, могут быть другие схемы, которые не надо пересоздавать
-            // Выводим содержимое выходной директории перед удалением
-            if (Directory.Exists(_config.OutputDirectory)) {
-                // Удаляем все файлы в выходной директории
-                // foreach (var file in Directory.GetFiles(_config.OutputDirectory)) {
-                //     File.Delete(file);
-                // }
-                Directory.Delete(_config.OutputDirectory, true);
-            }
-            Directory.CreateDirectory(_config.OutputDirectory);
 
             var schemaObject = JObject.Parse(registeredSchema.SchemaString);
             string schemaNamespace = schemaObject["namespace"]?.ToString();
@@ -87,7 +85,23 @@ namespace AvroGen.NET
 
             // Генерируем код
             codegen.GenerateCode();
-            codegen.WriteTypes(_config.OutputDirectory, !_config.CreateDirectoryStructure);
+            codegen.WriteTypes(outputDirectory, !_config.CreateDirectoryStructure);
+
+            // Подключение к Kafka
+            var config = new ProducerConfig
+            {
+                BootstrapServers = "localhost:9092", // адрес Kafka
+                Acks = Acks.All,
+                EnableIdempotence = true
+            };
+
+            // Создаем продюсера
+            using (var producer = new ProducerBuilder<string, string>(config).Build())
+            {
+                // Пример отправки сообщения
+                var message = new Message<string, string> { Key = "task-key", Value = "Задача создана" };
+                await producer.ProduceAsync("task-topic", message);
+            }
         }
     }
 }
