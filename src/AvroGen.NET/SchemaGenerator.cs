@@ -55,8 +55,8 @@ namespace AvroGen.NET
                 throw new Exception("Schema not found in registry");
             }
 
-            // Определяем выходную директорию на основе версии схемы
-            string outputDirectory = Path.Combine(_config.OutputDirectory, registeredSchema.Subject + (registeredSchema.Version.HasValue ? "\v" + registeredSchema.Version.Value : ""));
+            // Определяем выходную директорию на основе имени схемы
+            string outputDirectory = Path.Combine(_config.OutputDirectory, registeredSchema.Subject);
             // Проверяем, существует ли выходная директория, если нет, создаем
             if (!Directory.Exists(outputDirectory))
             {
@@ -70,7 +70,7 @@ namespace AvroGen.NET
                 return;
             }
 
-            var schemaObject = JObject.Parse(registeredSchema.SchemaString);
+            var schemaObject = JObject.Parse(registeredSchema.SchemaString ?? string.Empty);
             string schemaNamespace = schemaObject["namespace"]?.ToString();
 
             var namespaceMapping = new Dictionary<string, string>();
@@ -86,22 +86,6 @@ namespace AvroGen.NET
             // Генерируем код
             codegen.GenerateCode();
             codegen.WriteTypes(outputDirectory, !_config.CreateDirectoryStructure);
-
-            // Подключение к Kafka
-            var config = new ProducerConfig
-            {
-                BootstrapServers = "localhost:9092", // адрес Kafka
-                Acks = Acks.All,
-                EnableIdempotence = true
-            };
-
-            // Создаем продюсера
-            using (var producer = new ProducerBuilder<string, string>(config).Build())
-            {
-                // Пример отправки сообщения
-                var message = new Message<string, string> { Key = "task-key", Value = "Задача создана" };
-                await producer.ProduceAsync("task-topic", message);
-            }
         }
     }
 }
