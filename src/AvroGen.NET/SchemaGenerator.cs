@@ -54,17 +54,15 @@ namespace AvroGen.NET
             {
                 throw new Exception("Schema not found in registry");
             }
-
-            // Определяем выходную директорию на основе имени схемы
-            string outputDirectory = Path.Combine(_config.OutputDirectory, registeredSchema.Subject);
+            
             // Проверяем, существует ли выходная директория, если нет, создаем
-            if (!Directory.Exists(outputDirectory))
+            if (!Directory.Exists(_config.OutputDirectory))
             {
-                Directory.CreateDirectory(outputDirectory);
+                Directory.CreateDirectory(_config.OutputDirectory);
             }
 
             // Проверяем, существуют ли файлы и их версии
-            if (GeneratedFileVersionChecker.CheckDirectoryVersion(outputDirectory, registeredSchema.Version))
+            if (GeneratedFileVersionChecker.CheckDirectoryVersion(_config.OutputDirectory, registeredSchema.Version))
             {
                 // Файлы уже существуют и имеют нужную версию
                 return;
@@ -85,7 +83,7 @@ namespace AvroGen.NET
 
             // Генерируем код
             codegen.GenerateCode();
-            codegen.WriteTypes(outputDirectory, !_config.CreateDirectoryStructure);
+            codegen.WriteTypes(_config.OutputDirectory, !_config.CreateDirectoryStructure);
         }
     }
 }

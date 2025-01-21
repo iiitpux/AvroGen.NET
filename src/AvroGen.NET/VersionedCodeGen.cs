@@ -42,7 +42,7 @@ namespace AvroGen.NET
                 var ns = nsc[i];
 
                 string dir = outputDirectory;
-                if (skipDirectories != true)
+                if (!skipDirectories)
                 {
                     foreach (string name in CodeGenUtil.Instance.UnMangle(ns.Name).Split('.'))
                     {

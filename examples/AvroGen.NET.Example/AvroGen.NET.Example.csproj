@@ -9,7 +9,7 @@
             <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
             <Subject>user-value</Subject>
             <Version>1</Version>
-            <OutputDirectory>$(MSBuildProjectDirectory)\Generated\UserValue</OutputDirectory>
+            <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
             <Namespace>$(RootNamespace).Generated</Namespace>
             <CreateDirectoryStructure>false</CreateDirectoryStructure>
         </AvroSchema>
@@ -17,7 +17,7 @@
             <SchemaRegistryUrl>http://localhost:8081</SchemaRegistryUrl>
             <Subject>task-schema-value</Subject>
             <Version>1</Version>
-            <OutputDirectory>$(MSBuildProjectDirectory)\Generated\TaskValue</OutputDirectory>
+            <OutputDirectory>$(MSBuildProjectDirectory)\Generated</OutputDirectory>
             <Namespace>$(RootNamespace).Generated</Namespace>
             <CreateDirectoryStructure>false</CreateDirectoryStructure>
         </AvroSchema>
@@ -27,7 +27,7 @@
     </Target>
     <ItemGroup>
         <PackageReference Include="Apache.Avro" Version="1.11.3"/>
-        <PackageReference Include="AvroGen.NET" Version="0.5.44" />
+        <PackageReference Include="AvroGen.NET" Version="0.5.46" />
         <PackageReference Include="Confluent.SchemaRegistry" Version="2.4.0"/>
         <PackageReference Include="Confluent.SchemaRegistry.Serdes.Avro" Version="2.4.0"/>
         <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="all"/>
